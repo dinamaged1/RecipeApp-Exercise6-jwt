@@ -1,7 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System;
+using System.Security.Cryptography;
+using System.Security.Claims;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using RecipeApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +20,27 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o =>
+{
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey
+            (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = false,
+        ValidateIssuerSigningKey = true
+    };
+});
+builder.Services.AddAuthorization();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -37,14 +64,18 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 
 //Desrialize recipe file and category file
+List<User>? savedUsers = new();
 List<Recipe>? savedRecipes = new();
-List<String>? savedCategories = new();
+List<string>? savedCategories = new();
 try
 {
+    string userJson = await ReadJsonFile("user");
     string recipeJson = await ReadJsonFile("recipe");
     string categoryJson = await ReadJsonFile("category");
+    
     savedRecipes = JsonSerializer.Deserialize<List<Recipe>>(recipeJson);
     savedCategories = JsonSerializer.Deserialize<List<string>>(categoryJson);
+    savedUsers = JsonSerializer.Deserialize<List<User>>(userJson);
 }
 catch (Exception ex)
 {
@@ -53,8 +84,33 @@ catch (Exception ex)
 }
 
 //Create list of recipes and list of categories
+List<User> usersList = new List<User>(savedUsers!);
 List<Recipe> recipesList = new List<Recipe>(savedRecipes!);
 List<string> categoryList = new List<string>(savedCategories!);
+
+// User register
+app.MapPost("/register", async ([FromBody] UserDto newUser) =>
+{
+    if (newUser.UserPassword.IsNullOrEmpty() || newUser.UserPassword.Length<6)
+    {
+        return Results.BadRequest("Invalid password!");
+    }
+    else if(newUser.UserName.IsNullOrEmpty() || usersList.Exists(x => x.UserName == newUser.UserName))
+    {
+        return Results.BadRequest("Invalid user name");
+    }
+
+    CreatePasswordHash(newUser.UserPassword, out byte[] passwordHash, out byte[] passwordSalt);
+    User addedUser = new User();
+    addedUser.UserName = newUser.UserName;
+    addedUser.PasswordHash = passwordHash;
+    addedUser.PasswordSalt = passwordSalt;
+    
+    usersList.Add(addedUser);
+    await SaveUserToJson();
+    var stringToken = CreateToken(newUser.UserName);
+    return Results.Ok(stringToken);
+});
 
 //Get all recipes
 app.MapGet("/recipes", () =>
@@ -202,6 +258,31 @@ app.MapDelete("category/{name}", async (string name) =>
 
 app.Run();
 
+string CreateToken(string userName)
+{
+    var key = Encoding.ASCII.GetBytes
+        (builder.Configuration["Jwt:Key"]);
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(new[]
+        {
+                new Claim("Id", Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, userName),
+                new Claim(JwtRegisteredClaimNames.Jti,
+                Guid.NewGuid().ToString())
+             }),
+        Expires = DateTime.UtcNow.AddMinutes(5),
+        SigningCredentials = new SigningCredentials
+        (new SymmetricSecurityKey(key),
+        SecurityAlgorithms.HmacSha512Signature)
+    };
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    var jwtToken = tokenHandler.WriteToken(token);
+    var stringToken = tokenHandler.WriteToken(token);
+    return stringToken;
+}
+
 void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
 {
     using (var hmac= new HMACSHA512())
@@ -216,6 +297,12 @@ await File.ReadAllTextAsync($"{fileName}.json");
 
 async Task WriteJsonFile(string fileName, string fileData) =>
 await File.WriteAllTextAsync($"{fileName}.json", fileData);
+
+async Task SaveUserToJson()
+{
+    string jsonString = JsonSerializer.Serialize(usersList);
+    await WriteJsonFile("user", jsonString);
+}
 
 async Task SaveRecipeToJson()
 {
