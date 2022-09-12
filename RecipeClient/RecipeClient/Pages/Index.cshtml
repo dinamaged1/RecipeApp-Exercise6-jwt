@@ -1,0 +1,917 @@
+﻿@page
+@model IndexModel
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery antiforgery
+@{
+    var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+    ViewData["Title"] = "Home page";
+}
+
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
+<script defer src="https://unpkg.com/@Html.Raw('@')alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+<script>
+    let recipesList = [];
+    let categoriesList = []
+
+    async function fetchRecipesJSON() {
+        const response = await fetch("@Model.ApiUrl/recipes");
+        const recipes = await response.json();
+        recipesList = recipes;
+        return recipes;
+    }
+
+    async function fetchCategoriesJSON() {
+        const response = await fetch("@Model.ApiUrl/categories");
+        const categories = await response.json();
+        categories.sort();
+        categoriesList = categories;
+        return categories;
+    }
+
+    async function fetchRecipe(recipeId) {
+        const response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json;',
+            }
+        });
+        const recipe = await response.json();
+        return recipe;
+    }
+
+    async function addRecipe(newRecipe, imageBase64Stringsep,categories) {
+        fileName = document.querySelector('#newImg').value;
+        extension = fileName.split('.').pop();
+        srcData = imageBase64Stringsep;
+        let imagePath = `${newRecipe.id}.${extension}`;
+
+        // Check if inputs is full or empty
+        if (newRecipe.title === "" || newRecipe.ingredients.length === 0 || newRecipe.instructions.length === 0 || `${srcData}` === "") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Some data is missing...',
+                text: `please enter complete data`,
+            })
+            return false;
+        }
+
+        for (i = 0; i < newRecipe.ingredients.length; i++) {
+            if (newRecipe.ingredients[i] === "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Some data is missing...',
+                    text: `please enter recipe ingredients`,
+                })
+                return false;
+            }
+        }
+
+        for (i = 0; i < newRecipe.instructions.length; i++) {
+            if (newRecipe.instructions[i] === "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Some data is missing...',
+                    text: `please enter recipe instructions`,
+                })
+                return false;
+            }
+        }
+
+        // New Recipe object that will be added to recipe list
+        newRecipe = {
+            "id": newRecipe.id,
+            "title": newRecipe.title,
+            "imagepath": `/RecipesImages/${imagePath}`,
+            "ingredients": newRecipe.ingredients,
+            "instructions": newRecipe.instructions,
+            "categories": newRecipe.categories
+        }
+
+        // Call SaveImageToFolder method with POST request
+        let parameter = { Base64String: `${srcData}`, FileName: `${imagePath}` };
+        let response2 = await fetch(`?handler=SaveImageToFolder`, {
+            method: "POST",
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "RequestVerificationToken": `@token`, 'Content-Type': 'application/json;'
+            },
+            body: JSON.stringify(parameter),
+        });
+
+        // Make add recipe request
+        let response1 = await fetch("@Model.ApiUrl/recipe", {
+            method: "POST",
+            body: JSON.stringify(newRecipe),
+            headers: {
+                'Content-Type': 'application/json;',
+            }
+        });
+
+        if (response1.status === 200 && response2.status === 200) {
+            Swal.fire({
+                    icon: 'success',
+                    title: `${newRecipe.title} recipe added successfully`,
+                    confirmButtonText: 'Ok',
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        document.getElementById("newImg").value = null;
+                        return true;
+                    }
+                })
+
+            }
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `Something went wrong while adding ${newRecipe.title} recipe!`,
+                })
+                return false;
+            }
+    }
+
+    async function editRecipe(toBeEditRecipe, imageBase64Stringsep) {
+
+        let recipeId = toBeEditRecipe.id;
+        let newRecipe
+
+        if (imageBase64Stringsep != "") {
+            recipeId =`@Guid.NewGuid()`
+
+            fileName = document.querySelector('#editImg').value;
+            extension = fileName.split('.').pop();
+            srcData = imageBase64Stringsep;
+            let imagePath = `${recipeId}.${extension}`;
+
+            newRecipe = {
+                "id": recipeId,
+                "title": toBeEditRecipe.title,
+                "imagepath": `/RecipesImages/${imagePath}`,
+                "ingredients": toBeEditRecipe.ingredients,
+                "instructions": toBeEditRecipe.instructions,
+                "categories": toBeEditRecipe.categories
+            }
+
+            let response = await fetch(`@Model.ApiUrl/recipe/${toBeEditRecipe.id}`, {
+                method: "PUT",
+                body: JSON.stringify(newRecipe),
+                headers: {
+                    'Content-Type': 'application/json;',
+                }
+            });
+
+            // Call SaveImageToFolder method with POST request
+            let parameter = { Base64String: `${srcData}`, FileName: `${imagePath}` };
+            response = await fetch(`?handler=SaveImageToFolder`, {
+                method: "POST",
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "RequestVerificationToken": `@token`, 'Content-Type': 'application/json;'
+                },
+                body: JSON.stringify(parameter),
+            });
+
+            // Call DeleteImageFolder
+            parameter = { Base64String: `${srcData}`, FileName: `${toBeEditRecipe.imagepath}` };
+            response = await fetch(`?handler=DeleteImageFolder`, {
+                method: "POST",
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "RequestVerificationToken": `@token`, 'Content-Type': 'application/json;'
+                },
+                body: JSON.stringify(parameter),
+            });
+
+            $('#editModalRecipe').modal('hide');
+            return newRecipe;
+        }
+        else {
+            newRecipe = {
+                "id": toBeEditRecipe.id,
+                "title": toBeEditRecipe.title,
+                "imagepath": toBeEditRecipe.imagepath,
+                "ingredients": toBeEditRecipe.ingredients,
+                "instructions": toBeEditRecipe.instructions,
+                "categories": toBeEditRecipe.categories
+            }
+
+            let response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
+                method: "PUT",
+                body: JSON.stringify(newRecipe),
+                headers: {
+                    'Content-Type': 'application/json;',
+                }
+            });
+
+            $('#editModalRecipe').modal('hide');
+            return newRecipe;
+        }
+    }
+
+    async function deleteRecipe(toBeDeletedRecipe) {
+        if (toBeDeletedRecipe.id != "") {
+            let response = await fetch(`@Model.ApiUrl/recipe/${toBeDeletedRecipe.id}`, {
+                method: "DELETE",
+                headers: {
+                    'Content-Type': 'application/json;',
+                }
+            });
+
+            parameter = { Base64String: "", FileName: `${toBeDeletedRecipe.imagepath}` };
+            response = await fetch(`?handler=DeleteImageFolder`, {
+                method: "POST",
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "RequestVerificationToken": `@token`, 'Content-Type': 'application/json;'
+                },
+                body: JSON.stringify(parameter),
+            });
+            $('#deleteRecipeModal').modal('hide');
+        }
+    }
+
+    async function addCategory(newCategory) {
+        $('#addCategoryModal').modal('hide');
+        if (newCategory !== "") {
+            // Make add category request
+            let response = await fetch("@Model.ApiUrl/category", {
+                method: "POST",
+                body: JSON.stringify(newCategory),
+                headers: {
+                    'Content-Type': 'application/json;',
+                }
+            });
+
+            // If user entered repeated category
+            if (response.status === 400) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `${newCategory} category already exist`,
+                })
+            }
+            // If successful request
+            else if (response.status === 200) {
+                Swal.fire(
+                    'Good job!',
+                    `${newCategory} category added successfully`,
+                    'success'
+                )
+            }
+        }
+        else {
+            $('#addCategoryModal').modal('hide');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: `You entered empty input`,
+            })
+        }
+    }
+
+    async function editCategory(toBeEditedCategory, newCategoryName) {
+        $('#editCategoryModal').modal('hide');
+        if (toBeEditedCategory !== "", newCategoryName !== "") {
+            let response = await fetch(`@Model.ApiUrl/category/${toBeEditedCategory}`, {
+                method: "PUT",
+                body: JSON.stringify(newCategoryName),
+                headers: {
+                    'Content-Type': 'application/json;',
+                }
+            });
+            if (response.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: ` ${toBeEditedCategory} category edited to ${newCategoryName} successfully`,
+                    showConfirmButton: true,
+                })
+            }
+            else if (response.status === 400) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `${newCategoryName} category already exist`,
+                })
+            }
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `Something went wrong while editing ${toBeEditedCategory} category!`,
+                })
+            }
+        }
+    }
+
+    async function deleteCategory(toBeDeletedCategory) {
+        $('#deleteCategoryModal').modal('hide');
+        if (toBeDeletedCategory !== "") {
+            let response = await fetch(`@Model.ApiUrl/category/${toBeDeletedCategory}`, {
+                method: "DELETE",
+                headers: {
+                    'Content-Type': 'application/json;',
+                }
+            });
+            if (response.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: ` ${toBeDeletedCategory} category deleted successfully`,
+                    showConfirmButton: true,
+                });
+            }
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `Something went wrong while deleting ${toBeDeletedCategory} category!`,
+                })
+            }
+        }
+        else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: `Something went wrong while deleting ${toBeDeletedCategory} category!`,
+            })
+        }
+
+    }
+
+    function imageViewer(url) {
+        return {
+            imgUrl: `${url}`,
+
+            imageBase64Stringsep: '',
+
+            changeImgUrl: function (newUrl) {
+                this.imgUrl = newUrl;
+            },
+            changeImageBase64Stringsep: function (base64) {
+                this.imageBase64Stringsep = base64;
+            },
+            fileChosen(event) {
+                this.fileToDataUrl(event, (src1, src2) => {
+                    this.imgUrl = src1;
+                    this.imageBase64Stringsep = src2;
+                })
+            },
+
+            fileToDataUrl(event, callback) {
+            if (!event.target.files.length) return
+
+            let file = event.target.files[0],
+                reader = new FileReader()
+
+            reader.readAsDataURL(file)
+                reader.onload = e => {
+                    base64String = reader.result.replace("data:", "")
+                        .replace(/^.+,/, "");
+                    callback(e.target.result, base64String)
+                };
+            },
+        }
+    }
+
+    function currentRecipe() {
+        return {
+            currentRecipe: { id: '', title: '', imagepath: '', ingredients: [''], instructions: [''], categories: [] },
+
+            changeCurrentRecipe: function (newRecipe) {
+                this.currentRecipe = newRecipe;
+            },
+        }
+    }
+</script>
+
+<div x-data="currentRecipe">
+    <div x-data="{ recipeDetailsShow:false, recipeShow:false, recipeTemp:{ id: '', title: '', imagepath: '', ingredients: [''], instructions: [''], categories: []} ,recipes: [],categories:[],toBeEditRecipe:{ id: '', title: '', imagepath: '', ingredients: [''], instructions: [''], categories: []} ,numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)" 
+         @@resize.window="if (window.innerWidth < 640) {recipesPerPage:2}"
+    >
+        <section id="section1">
+            <div class="text-center c-back-img-div">
+                <div class="row pe-0">
+                    <div class="col"></div>
+                    <div class="col">
+                        <h1 class="display-4 mt-5 c-title-font c-white-font">Welcome to Tasty Tips</h1>
+                        <p class="c-description-font mb-5" style="text-align: start; font-size:120%;">Where we'll be using simple, fresh ingredients and transforming them into sophisticated and elegant meals for the everyday home cook.</p>
+                        <div class="row" style="--bs-gutter-x: -0.5rem; width:90%; align-self:center">
+                            <div class="col c-box-recipe">
+                                <button class="btn m-2">
+                                    <p class="c-grey-font c-title-font h4">Recipe</p>
+                                </button>
+                                <p class="c-description-font"> You can add new recipes and your experience and view all recipes to try.</p>
+                                <button class="btn m-4 c-explore-btn" style="background-color: #ffdfe4;" x-on:click="window.location.href = '#recipesSection';"> Explore Recipes </button>
+                            </div>
+                            <div class="col c-box-category">
+                                <button class="btn m-2 ">
+                                    <p class="c-grey-font c-title-font h4">Category</p>
+                                </button>
+                                <p class="c-description-font"> You can add new categories and share with us your country food. </p>
+                                <a href="#categoriesSection">
+                                    <button class="btn btn-warnong m-4 c-explore-btn" style="background-color: #ffffd5;">Explore Categories</button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="recipesSection">
+            <div class="c-recipe-background">
+                <div style="text-align:end" class="p-3 pb-0" href="#section1" x-on:click="window.location.href = '#section1';">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-arrow-up-square" viewBox="0 0 16 16" style="cursor:pointer">
+                        <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.5 9.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z" />
+                    </svg>
+                </div>
+                <h1 class="c-title-font h1 mb-4" style="text-align:center; color:white; font-size:60px;">
+                    Recipes
+                    <button x-on:click="$nextTick(()=>{window.location.href = '#addRecipeSection'})" style="border: none; background-color: transparent">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16" style="color:hotpink; cursor:pointer">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                        </svg>
+                    </button>
+                </h1>
+                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner" style="text-align:center">
+                        <template x-for="i in numberOfPages">
+                            <div :class="i==1? `carousel-item  active`:`carousel-item`" style="padding-left:13%; padding-right:8%; text-align:center">
+                                <div class="row">
+                                    <template x-for="(recipe, index) in recipes" :key="index">
+                                        <template x-if="(index+1 <= i*recipesPerPage && index+1>(i-1)*recipesPerPage )">
+                                            <div class="col-sm-6  col-xl-4 col-lg-5 py-5 px-1">
+                                                <div class="card c-card-div shadow">
+                                                    <div class="c-img-div">
+                                                        <img x-bind:src="recipe.imagepath" class="card-img-top c-card-img" alt="..." width="100" height="100">
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <h5 class="card-title c-font-color" x-text="recipe.title"></h5>
+                                                        <div class="c-categories-container-recipe my-4">
+                                                            <div class="c-categories-container-recipe my-4">
+                                                                <template x-for="category in recipe.categories">
+                                                                    <button class="c-category-btn mx-1" x-text="category" disabled></button>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                        <div x-on:click="currentRecipe= await fetchRecipe(recipe.id); toBeEditRecipe= await fetchRecipe(recipe.id) ;currentRecipeImage=recipe.imagepath; recipeDetailsShow=true; $nextTick(()=>{window.location.href = '#recipeDetailsSection'})">
+                                                            <a class="c-details-btn btn ">DETAILS</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev" style="width: 19%;">
+                        <span class="carousel-control-prev-icon" width="60" height="60" aria-hidden="true" style="width: 4rem;height: 4rem;"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next" style="width: 19%;">
+                        <span class="carousel-control-next-icon" aria-hidden="true" style="width: 4rem; height: 4rem;"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+        <section x-show="recipeDetailsShow" id="recipeDetailsSection">
+            <div class="c-recipe-details-background" id="divImg" x-data="imageViewer('')">
+                <a class="c-back-button" href="#recipesSection" x-on:click="recipeDetailsShow=false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16" style="margin-top:1%; margin-left:1%; cursor:pointer">
+                        <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z" />
+                    </svg>
+                </a>
+                <div class="row" style="margin:1rem 12rem">
+                    <div class="col-5 px-0 justify-content-center">
+                        <h2 class="c-recipe-details-title" x-text="`${currentRecipe.title} Recipe`"> </h2>
+                    </div>
+                    <div class="col py-1">
+                        <div class="float-end me-2">
+                            <button class="d-inline btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModalRecipe" x-on:click="changeImgUrl(currentRecipe.imagepath)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                </svg>
+                            </button>
+                            <button class="d-inline btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteRecipeModal">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row c-recipe-details-div shadow">
+                    <div class="col-5 px-0 h-100">
+                        <img x-bind:src="currentRecipe.imagepath" class="c-recipe-details-img h-100" />
+                    </div>
+                    <div class="col-7 p-3">
+                        <div class="d-flex flex-column ">
+                            <div class="mb-3">
+                                <img src="~/Images/Lovepik_com-610489188-Food ingredients.png" width="45" height="45" />
+                                <h5 class="c-recipe-details-headers">Ingredients</h5>
+                                <div class="c-recipe-details-border p-2">
+                                    <div class="row">
+                                        <template x-for="currentRecipeIngredients in currentRecipe.ingredients">
+                                            <div class="col-6">
+                                                <ul>
+                                                    <li x-text="currentRecipeIngredients"></li>
+                                                </ul>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <img src="~/Images/Lovepik_com-401216683-fruit-salad-big-bowl-of-fruit.png" width="60" height="60" />
+                                <h5 class="c-recipe-details-headers">Steps</h5>
+                                <div class="c-recipe-details-border p-2" style="height: 17rem;">
+                                    <ol>
+                                        <template x-for="currentRecipeInstructions in currentRecipe.instructions">
+                                            <div>
+                                            <li x-text="currentRecipeInstructions"></li>
+                                            <hr style=" height: 0.5px; margin: 1rem 6rem; " />
+                                </div>
+                                </template>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @* Edit Modal *@
+                <div class="modal fade" id="editModalRecipe" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+                        <div class="modal-content" style="border-color:deeppink; border-width:1px; border-style:solid">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel" x-text="`Edit  Recipe`"></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" x-on:click="toBeEditRecipe; document.getElementById('editImg').value = null;"></button>
+                            </div>
+                            <div class="modal-body c-edit-modal-body">
+                                <form x-on:submit.prevent="editedRecipe=await editRecipe(toBeEditRecipe,imageBase64Stringsep); changeCurrentRecipe(editedRecipe); recipes= await fetchRecipesJSON(); numberOfPages=Math.ceil(recipes.length/recipesPerPage)">
+                                    <div class="">
+                                        <div class="">
+                                            <label class="col-form-label c-edit-modal-label">Title</label>
+                                        </div>
+                                        <div class="c-title-input">
+                                            <input type="text" class="form-control" name="title" placeholder="Recipe title" x-model="toBeEditRecipe.title" required />
+                                        </div>
+                                    </div>
+                                    <div class="row my-4">
+                                        <div class="col me-3">
+                                            <div class="row">
+                                                <label class="col-auto c-edit-modal-label">Ingredients</label>
+                                                <div class="col-auto px-0" @@click="toBeEditRecipe.ingredients.push('');" style="cursor:pointer">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <template x-for=" (ingredient,index) in toBeEditRecipe.ingredients">
+                                                <div class="input-group my-2">
+                                                    <input type="text"
+                                                           class="form-control"
+                                                           placeholder="Recipe ingredient"
+                                                           aria-label="Recipe ingredient"
+                                                           aria-describedby="button-addon2"
+                                                           x-model="toBeEditRecipe.ingredients[index]"
+                                                           required>
+                                                    <button class="btn btn-danger" type="button" id="button-addon2" @@click="toBeEditRecipe.ingredients.splice(index,1)">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                            <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <div class=" col me-2">
+                                            <div class="row">
+                                                <label class="col-auto c-edit-modal-label">Instructions</label>
+                                                <div class="col-auto px-0" @@click="toBeEditRecipe.instructions.push('')" style="cursor:pointer">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <template x-for=" (instruction,index) in toBeEditRecipe.instructions">
+                                                <div class="input-group my-2" :id="index">
+                                                    <textarea type="text"
+                                                              class="form-control"
+                                                              placeholder="Recipe instruction"
+                                                              aria-label="Recipe instruction"
+                                                              aria-describedby="button-addon2"
+                                                              x-model="toBeEditRecipe.instructions[index]"
+                                                              required></textarea>
+                                                    <button class="btn btn-danger" type="button" id="delete-i" @@click="toBeEditRecipe.instructions.splice(index,1)">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                            <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <template x-for="(category,index) in categories">
+                                            <div class="form-group col-6">
+                                                <input type="checkbox" class="form-check-input" x-bind:value="categories[index]" x-model="toBeEditRecipe.categories">
+                                                <label class="form-check-label" x-text="category"></label>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <hr />
+                                    <div class="mt-3 mb-2">
+                                        <template x-if="imgUrl">
+                                            <img :src="imgUrl"
+                                                 class="object-cover rounded border border-gray-200"
+                                                 style="width: 100px; height: 100px;">
+                                        </template>
+                                        <template x-if="imgUrl==''">
+                                            <div class="border rounded border-gray-200 bg-secondary"
+                                                 style="width: 100px; height: 100px;"></div>
+                                        </template>
+                                        <div class="col-auto">
+                                            <input class="mt-2" type="file" id="editImg" x-on:change="fileChosen">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <div class="row " style="float:right">
+                                            <div class="col">
+                                                <button type="button" class="btn btn-secondary" x-on:click="toBeEditRecipe; document.getElementById('editImg').value = null;" data-bs-dismiss="modal" aria-label="Close"> Cancel</button>
+                                            </div>
+                                            <div class="col">
+                                                <button type="submit" class="btn" style="background-color: hotpink">Submit </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @* Delete Modal *@
+                <div class="modal fade" id="deleteRecipeModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content c-delete-modal-content">
+                            <div class="modal-header c-delete-modal-header">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form x-on:submit.prevent="deleteRecipe(currentRecipe).then(()=>{fetchRecipesJSON().then((fetchedRecipes)=>{recipes=fetchedRecipes; window.location.href = '#recipesSection';recipeDetailsShow=false;})}) ">
+                                <div class="modal-body row justify-content-center pt-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="65" height="70" fill="#e62222" class="bi bi-trash3-fill c-delete-trash" viewBox="0 0 16 16">
+                                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                                    </svg>
+                                    <h2 class="ps-5 c-delete-modal-title">Delete?</h2>
+                                    <p class="c-delete-confirmation-text">
+                                        Are you sure you want to delete <b x-text="currentRecipe.title"></b> recipe?
+                                    </p>
+                                </div>
+                                <div class="modal-footer c-modal-footer container row justify-content-center">
+                                    <button type="button" class="btn  c-cancel-delete c-cancel-delete-modal col-3 me-3 " data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                                    <button type="submit" class="btn c-delete-button col-3 ms-3">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="addRecipeSection" x-cloak>
+            <div class="c-recipe-background pt-4" id="section3">
+                <h1 class="c-title-font c-form-title" style="font-family: 'El Messiri', sans-serif;">
+                    Add Recipe
+                </h1>
+                <div class="c-add-recipe-form c-form-div" x-data="imageViewer('')">
+                    <div class="p-5 pt-4" x-data="{newRecipe: {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}}">
+                        <form x-on:submit.prevent="addRecipe(newRecipe,imageBase64Stringsep,categories).then((isDataOk)=>{if(isDataOk !== false){fetchRecipesJSON().then((fetchedRecipes)=>{recipes=fetchedRecipes; numberOfPages=Math.ceil(recipes.length/recipesPerPage);newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}; imgUrl='';imageBase64Stringsep: ''; })}})">
+                            <div style="float: right;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16" style="cursor:pointer" x-on:click="window.location.href = '#recipesSection'; $nextTick(()=>{newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []};changeImgUrl('');changeImageBase64Stringsep('')})">
+                                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                                </svg>
+                            </div>
+                            <div class="">
+                                <div class="">
+                                    <label class="col-form-label">Title</label>
+                                </div>
+                                <div class="c-title-input">
+                                    <input type="text" class="form-control" name="title" placeholder="Recipe title" x-model="newRecipe.title" required />
+                                </div>
+                            </div>
+                            <div class="row my-4">
+                                <div class="col me-3">
+                                    <div class="row">
+                                        <label class="col-auto">Ingredients</label>
+                                        <div class="col-auto px-0" @@click="newRecipe.ingredients.push('')" style="cursor:pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <template x-for=" (ingredient,index) in newRecipe.ingredients">
+                                        <div class="input-group my-2">
+                                            <input type="text"
+                                                   class="form-control"
+                                                   placeholder="Recipe ingredient"
+                                                   aria-label="Recipe ingredient"
+                                                   aria-describedby="button-addon2"
+                                                   x-model="newRecipe.ingredients[index]"
+                                                   required>
+                                            <button class="btn btn-outline-secondary" type="button" id="button-addon2" @@click="newRecipe.ingredients.splice(index,1)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class=" col me-2">
+                                    <div class="row">
+                                        <label class="col-auto">Instructions</label>
+                                        <div class="col-auto px-0" @@click="newRecipe.instructions.push('')" style="cursor:pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <template x-for=" (instruction,index) in newRecipe.instructions">
+                                        <div class="input-group my-2" :id="index">
+                                            <textarea class="form-control c-textarea "
+                                                      placeholder="Recipe instruction"
+                                                      aria-label="Recipe instruction"
+                                                      aria-describedby="button-addon2"
+                                                      x-model="newRecipe.instructions[index]"
+                                                      role="textbox"
+                                                      required></textarea>
+                                            <button class="btn btn-outline-secondary" type="button" id="delete-i" @@click="newRecipe.instructions.splice(index,1)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <template x-for="(category,index) in categories">
+                                    <div class="form-group col-6">
+                                        <input type="checkbox" class="form-check-input c-form-check-input" x-bind:value="categories[index]" x-model="newRecipe.categories">
+                                        <label class="form-check-label" x-text="category"></label>
+                                    </div>
+                                </template>
+                            </div>
+                            <hr />
+                            <div class="mt-3">
+                                <template x-if="imgUrl">
+                                    <img :src="imgUrl"
+                                         class="object-cover rounded border border-gray-200"
+                                         style="width: 100px; height: 100px;">
+                                </template>
+                                <template x-if="!imgUrl">
+                                    <div class="border rounded border-gray-200 bg-secondary"
+                                         style="width: 100px; height: 100px;"></div>
+                                </template>
+                                <div class="col-auto">
+                                    <input class="mt-2" type="file" x-on:change="fileChosen" id="newImg" required>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="row " style="float:right">
+                                    <div class="col">
+                                        <button type="button" class="btn btn-secondary" x-on:click="await $nextTick(()=>{window.location.href = '#recipesSection'; newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}; changeImgUrl(''); changeImageBase64Stringsep('')})"> Cancel</button>
+                                    </div>
+                                    <div class="col">
+                                        <button type="submit" class="btn" style="background-color: #d560e9">Submit </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="categoriesSection">
+            <div class="c-categories-background" x-data="{toBeDeletedCategory:'',toBeEditedCategory:''}">
+                <div style="text-align:end" class="p-3 pb-0" href="#section1" x-on:click="window.location.href = '#section1';">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-arrow-up-square" viewBox="0 0 16 16" style="cursor:pointer">
+                        <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.5 9.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z" />
+                    </svg>
+                </div>
+                <h1 class="c-title-font h1 mb-4" style="text-align:center; color:white; font-size:60px;">
+                    Categories
+                    <button style="border: none; background-color: transparent" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16" style="color:yellow; cursor:pointer">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                        </svg>
+                    </button>
+                </h1>
+                <div class="row ms-5">
+                    <template x-for="(category, index) in categories">
+                        <div class=" col-lg-2 col-md-3 mx-2">
+                            <div class="card my-3 c-category-card">
+                                <div class="card-body">
+                                    <h4 class="card-title" x-text="category"></h4>
+                                </div>
+                                <div class="c-category-btn c-category-edits">
+                                    <div class="mb-1">
+                                        <button class="d-inline btn btn-primary" data-bs-toggle="modal" data-bs-target="#editCategoryModal" x-on:click="toBeEditedCategory=category">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                            </svg>
+                                        </button>
+                                        <button class="d-inline btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" x-on:click="toBeDeletedCategory=category">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                @* Edit category modal *@
+                <div class="modal fade" id="editCategoryModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true" x-data="{newCategoryName:toBeEditedCategory}">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel">Edit <b x-text="toBeEditedCategory"></b> category</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form x-on:submit.prevent="await editCategory(toBeEditedCategory,newCategoryName); categories=await fetchCategoriesJSON(); toBeEditedCategory=''">
+                                <div class="modal-body c-edit-modal-body">
+                                    <div class="form-group">
+                                        <label class="mb-2"> Enter new category name</label>
+                                        <input type="text" id="categoryName" class="form-control" x-model="newCategoryName" required />
+                                    </div>
+                                </div>
+                                <div class="modal-footer c-modal-footer">
+                                    <button type="button" class="btn c-cancel-button" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                                    <button type="submit" class="btn c-confirm-button">Confirm</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @* Delete category modal *@
+                <div class="modal fade" id="deleteCategoryModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content c-delete-modal-content">
+                            <div class="modal-header c-delete-modal-header">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form x-on:submit.prevent="await deleteCategory(toBeDeletedCategory); categories=await fetchCategoriesJSON(); toBeDeletedCategory=''">
+                                <div class="modal-body row justify-content-center pt-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="65" height="70" fill="#e62222" class="bi bi-trash3-fill c-delete-trash" viewBox="0 0 16 16">
+                                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                                    </svg>
+                                    <h2 class="ps-5 c-delete-modal-title">Delete?</h2>
+                                    <p class="c-delete-confirmation-text">
+                                        Are you sure you want to delete <b x-text="toBeDeletedCategory"></b> category?
+                                    </p>
+                                </div>
+                                <div class="modal-footer c-modal-footer container row justify-content-center">
+                                    <button type="button" class="btn c-cancel-delete-modal c-cancel-delete col-3 me-3 " data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                                    <button type="submit" class="btn c-delete-button col-3 ms-3">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* Add category modal *@
+            <div class="modal fade" id="addCategoryModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content" style="border-color:yellow; border-width:2px; border-style:solid" x-data="{newCategory:''}">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addModalLabel">Add new category</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form x-on:submit.prevent="await addCategory(newCategory); categories=await fetchCategoriesJSON()">
+                            <div class="modal-body c-edit-modal-body">
+                                <div class="form-group">
+                                    <label class="mb-2"> Enter new category name</label>
+                                    <input type="text" id="categoryName" class="form-control" x-model="newCategory" required />
+                                </div>
+                            </div>
+                            <div class="modal-footer c-modal-footer">
+                                <button type="button" class="btn c-cancel-button" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                                <button type="submit" class="btn c-confirm-button">Confirm</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

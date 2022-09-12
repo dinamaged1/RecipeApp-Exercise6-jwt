@@ -1,0 +1,138 @@
+[
+    {
+        "Id": "0aaecdaf-9c8d-42cf-ba4f-c840cee29c3c",
+        "Title": "Pizza",
+        "Imagepath": "/RecipesImages/0aaecdaf-9c8d-42cf-ba4f-c840cee29c3c..jpg",
+        "Ingredients": [
+            "2 cups lukewarm water\r",
+            "1 pinch sugar\r",
+            "1 1/2 tablespoons active dry yeast\r",
+            "2 tablespoons olive oil\r",
+            "5 1/4 cups all purpose flour or bread flour\r",
+            "1 1/2 teaspoons salt    "
+        ],
+        "Instructions": [
+            "Add the olive oil, flour and salt, with the hook attachment start to combine on low speed #1, scrape the hook and then raise to medium speed #2 and knead for approximately 5-7 minutes or until you have a smooth elastic dough (scrape the hook halfway through kneading).  \r",
+            "Place in a lightly oiled bowl, roll the dough to cover lightly with the oil, cover the bowl with plastic wrap and a large clean kitchen towel, leave in a warm draft free area until doubled in bulk, approximately 2 hours.\r",
+            "Pre heat oven to 450\u00B0 (250\u00B0 celsius). Punch dough down a few times and divide into 1-3 balls, let dough rest for 20 minutes.\r",
+            "Place the dough in the desired pizza or cookie sheets (lightly oiled) and shape the dough into the desired shapes (using your clean hands). \r",
+            "Top with your favourite toppings (without the cheese), bake for approximately 15-20 minutes (until crust is golden) and then top with grated mozzarella cheese and bake for three more minutes or until cheese is melted.\r",
+            "At this point, dough can also be refrigerated, place in plastic bag, remove air and tie securely up to 24 hours."
+        ],
+        "Categories": [
+            "Italian food"
+        ]
+    },
+    {
+        "Id": "22839489-f688-44b0-9f18-1457d4b63683",
+        "Title": "Cheese Burger",
+        "Imagepath": "/RecipesImages/22839489-f688-44b0-9f18-1457d4b63683..jpg",
+        "Ingredients": [
+            "1 pound ground lean (7% fat) beef\r",
+            "1 large egg\r",
+            "\u00BD cup minced onion\r",
+            "\u00BC cup fine dried bread crumbs\r",
+            "1 tablespoon Worcestershire\r",
+            "1 or 2 cloves garlic, peeled and minced\r",
+            "About 1/2 teaspoon salt\r",
+            "About 1/4 teaspoon pepper\r",
+            "4 hamburger buns (4 in. wide), split\r",
+            "About 1/4 cup mayonnaise\r",
+            "About 1/4 cup ketchup\r",
+            "4 iceberg lettuce leaves, rinsed and crisped\r",
+            "1 firm-ripe tomato, cored and thinly sliced\r",
+            "4 thin slices red onion      "
+        ],
+        "Instructions": [
+            "In a bowl, mix ground beef, egg, onion, bread crumbs, Worcestershire, garlic, 1/2 teaspoon salt, and 1/4 teaspoon pepper until well blended. Divide mixture into four equal portions and shape each into a patty about 4 inches wide.\r",
+            "Lay burgers on an oiled barbecue grill over a solid bed of hot coals or high heat on a gas grill (you can hold your hand at grill level only 2 to 3 seconds); close lid on gas grill. Cook burgers, turning once, until browned on both sides and no longer pink inside (cut to test), 7 to 8 minutes total. Remove from grill.\r",
+            "Lay buns, cut side down, on grill and cook until lightly toasted, 30 seconds to 1 minute.\r",
+            "Spread mayonnaise and ketchup on bun bottoms. Add lettuce, tomato, burger, onion, and salt and pepper to taste. Set bun tops in place."
+        ],
+        "Categories": [
+            "American food"
+        ]
+    },
+    {
+        "Id": "c1200ca5-3866-4665-9e17-a8b65f6ab627",
+        "Title": "Steak",
+        "Imagepath": "/RecipesImages/c1200ca5-3866-4665-9e17-a8b65f6ab627..jpg",
+        "Ingredients": [
+            "1 - 2 boneless ribeye or scotch fillet , 2.5 cm / 1\\u0022 thick, approx 300g/10 oz each (Note 1)\r",
+            "1 tbsp vegetable oil\r",
+            "Salt and pepper\r",
+            "75g / 5 tbsp unsalted butter , cut into 1.25cm / 1/2\\u0022 cubes (Note 2)\r",
+            "6 sprigs fresh thyme or 3 sprigs rosemary\r",
+            "5 garlic cloves  "
+        ],
+        "Instructions": [
+            "Heat oil in a heavy based skillet over high heat until it is very hot - you should see smoke!\r",
+            "Cook for 2 - 2.5 minutes until you get a great crust, then turn.\r",
+            "Leave for 1 minute, then push steaks to one side and toss in butter, garlic and thyme. BE CAREFUL - the thyme will sputter!\r",
+            "As soon as the butter is melted, continuously spoon the butter over the steak until it\\u0027s cooked to your liking - 2 minutes in total for the 2nd side for medium rare (52C/125F, chart below for other doneness temps).\r",
+            "Serve steak with a bit of the butter from the skillet drizzled on top. Pictured in post with Crispy Smashed Potatoes."
+        ],
+        "Categories": [
+            "Mexican food",
+            "American food"
+        ]
+    },
+    {
+        "Id": "175130cc-800b-434d-9ced-27b7f76d2bb8",
+        "Title": "Berry Ice Cream",
+        "Imagepath": "/RecipesImages/175130cc-800b-434d-9ced-27b7f76d2bb8..jpg",
+        "Ingredients": [
+            "2 cups fresh or frozen mixture of berries, stemmed (sliced, if needed)\r",
+            "1 cup sugar\r",
+            "1 cup whole milk\r",
+            "2 cups heavy cream\r",
+            "1 tsp pure vanilla extract     "
+        ],
+        "Instructions": [
+            "In a bowl, whisk together the milk and sugar until sugar is dissolved.\r",
+            "Stir in heavy cream and vanilla, and whisk to combine well.\r",
+            "Turn ice cream make on and pour milk/cream mixture in. Follow directions on your ice cream maker for churning; generally about 25-30 minutes.\r",
+            "During last 5-10 minutes of churning, add the berries (including juices from macerating, if any.)\r",
+            "Ice cream may be soft and need to firm up in freezer for 2-3 hours before serving."
+        ],
+        "Categories": [
+            "Desserts",
+            "Fruits"
+        ]
+    },
+    {
+        "Id": "f2eb3803-76af-4e0e-805a-956344dd7eb1",
+        "Title": "Hot Chocolate",
+        "Imagepath": "/RecipesImages/f2eb3803-76af-4e0e-805a-956344dd7eb1..jpg",
+        "Ingredients": [
+            "2 cups milk\r",
+            "2 tablespoons unsweetened cocoa powder\r",
+            "2 tablespoons granulated sugar\r",
+            "\u00BC cup chocolate chips\r",
+            "\u215B teaspoon vanilla extract "
+        ],
+        "Instructions": [
+            "Place the milk of your choice in a saucepan over medium-low heat. Using milk instead of water, makes this hot chocolate extra creamy and flavorful. I prefer whole milk or 2% milk.\r",
+            "Once the milk is warm, add chocolate chips, whisking until they melt into the milk.\r",
+            "Whisk in cocoa powder and sugar, and heat until warm.\r",
+            "Add a splash of vanilla extract."
+        ],
+        "Categories": [
+            "Hot drinks"
+        ]
+    },
+    {
+        "Id": "d99db9d5-642b-4435-ac51-9b35385d43a6",
+        "Title": "Salad",
+        "Imagepath": "/RecipesImages/d99db9d5-642b-4435-ac51-9b35385d43a6..jpg",
+        "Ingredients": [
+            " xx"
+        ],
+        "Instructions": [
+            "xx"
+        ],
+        "Categories": [
+            "Salad"
+        ]
+    }
+]

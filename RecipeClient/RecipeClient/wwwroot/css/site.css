@@ -1,0 +1,345 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    overflow-x: hidden;
+}
+
+    body::-webkit-scrollbar {
+        display: none;
+    }
+
+[x-cloak] {
+    display: none !important;
+}
+
+
+
+
+.c-container {
+    padding: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.c-back-img-div {
+    background-image: url("https://i.im.ge/2022/08/04/F3qZKX.background9.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.c-title-font {
+    font-family: 'Kaushan Script', cursive;
+}
+
+.c-description-font {
+    font-family: 'DM Serif Display', serif;
+}
+
+.c-white-font {
+    color: white;
+}
+
+.c-grey-font {
+    color: grey;
+}
+
+.c-box-recipe {
+    background-color: pink;
+    border-radius: 5px;
+}
+
+.c-box-category {
+    background-color: yellow;
+    border-radius: 10px;
+}
+
+.c-explore-btn {
+    border-style: solid;
+    border-color: black;
+    border-radius: 10px;
+}
+
+.c-recipe-background {
+    /*background-image: url("https://i.im.ge/2022/08/04/FYnDMa.bg-recipe.png");*/
+    min-height: 100vh;
+    padding-top: 1%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #bee2e4;
+    overflow: hidden;
+    scroll-behavior: revert !important;
+}
+
+.c-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 100px;
+}
+
+.c-card-div {
+    width: 330px;
+    text-align: center;
+    font-size: 10px;
+    transition: transform 0.5s,width 0.5s,box-shadow 0.5s;
+}
+
+    .c-card-div:hover {
+        transform: translateY(-30px);
+        width: 340px;
+        box-shadow: 0 1.5rem 2rem rgba(0,0,0,.5) !important;
+    }
+
+        .c-card-div:hover .c-img-div {
+            height: 300px;
+            width: 338px;
+        }
+
+.c-img-div {
+    width: 328px;
+    height: 280px;
+    transition: height 0.5s,width 0.5s;
+}
+
+.c-card-img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.c-categories-container-recipe {
+    text-align: start;
+    font-size: 15px;
+}
+
+.c-categories-container-recipe {
+    text-align: start;
+    font-size: 15px;
+}
+
+.c-category-btn {
+    border-radius: 25px;
+    font-weight: 800
+}
+
+.c-details-btn {
+    color: black;
+    text-decoration: none;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #d9c6c0b3;
+    background-color: #fffbd6;
+    padding: 10px 30px;
+    cursor: pointer;
+}
+
+    .c-details-btn:hover {
+        background-color: #ffe600;
+    }
+
+.c-add-recipe-form {
+    background-color: #f3cdee;
+}
+
+.c-form-title {
+    margin: 1rem 11.5rem;
+}
+
+.c-form-div {
+    margin: 1rem 11.5rem;
+    border-radius: 19px;
+}
+
+.c-title-input {
+    width: 45%;
+}
+
+.c-form-check-input:checked {
+    background-color: #ad21c5;
+}
+
+.c-recipe-details-background {
+    min-height: 100vh;
+    padding-top: 1%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #bee2e4;
+    overflow: hidden;
+    scroll-behavior: revert !important;
+}
+
+.c-recipe-details-div {
+    height: 40rem;
+    margin: 1rem 10rem;
+    background-color: white;
+}
+
+.c-recipe-details-title {
+    text-align: center;
+    color: hotpink;
+    font-family: 'Courgette', cursive;
+}
+
+.c-recipe-details-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.c-recipe-details-headers {
+    color: hotpink;
+    font-weight: 700;
+}
+
+.c-recipe-details-border {
+    border-color: #ffe7f2;
+    border-style: solid;
+    height: 10rem;
+    overflow: auto;
+    overflow-x: hidden;
+    font-size: large;
+    font-weight: 400;
+}
+
+    /* Track */
+    .c-recipe-details-border::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    .c-recipe-details-border::-webkit-scrollbar-track {
+        background: #d97dab8f;
+        border-radius: 10px;
+    }
+
+    /* Handle */
+    .c-recipe-details-border::-webkit-scrollbar-thumb {
+        background: #d23f83;
+        border-radius: 10px;
+    }
+
+        /* Handle on hover */
+        .c-recipe-details-border::-webkit-scrollbar-thumb:hover {
+            background: #8a003f;
+        }
+
+.c-edit-modal-label {
+    font-weight: 500;
+}
+
+.c-delete-modal-header {
+    border-bottom: none;
+}
+
+.c-delete-confirmation-text {
+    margin-top: 5%
+}
+
+.c-delete-modal-title {
+    padding-left: 8rem !important;
+    margin-top: 5px;
+}
+
+.c-delete-trash {
+    border-radius: 50%;
+    border-color: #e62222;
+    border-style: solid;
+    width: 70px;
+}
+
+.c-delete-modal-content {
+    width: 75%;
+}
+
+.c-cancel-delete {
+    border-color: #E62222;
+    padding: 0.4rem 1rem;
+}
+
+.c-delete-button {
+    border-radius: 40px;
+    color: white;
+    background-color: #E62222;
+}
+
+.c-cancel-delete-modal {
+    background-color: none;
+    border-radius: 40px;
+    border-color: #E62222;
+}
+
+.c-cancel-button {
+    background-color: none;
+    border-radius: 40px;
+    border-color: yellow;
+}
+
+.c-confirm-button {
+    border-radius: 40px;
+    color: black;
+    background-color: yellow;
+}
+
+.c-categories-background {
+    min-height: 100vh;
+    padding-top: 1%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #bee2e4;
+    overflow: hidden;
+    scroll-behavior: revert !important;
+}
+
+.c-category-card {
+    border-radius: 15px;
+    text-align: center;
+}
+
+    .c-category-card:hover {
+        background-color: #faff96;
+    }
+
+.c-edit-modal-body {
+    margin: 20px 0px;
+}
+
+.c-category-edits {
+    display: none;
+    transition-duration: 1s
+}
+
+.c-category-card:hover > .c-category-edits {
+    display: block;
+}
+
+@media screen and (max-width: 1500px) {
+    .c-recipe-details-background {
+        min-height: 75vh;
+        width: 100%;
+        padding-top: 1%;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-color: #bee2e4;
+        overflow: hidden;
+        scroll-behavior: revert !important;
+    }
+
+    .c-recipe-details-div {
+        margin: 1rem 1rem;
+        background-color: white;
+    }
+}
