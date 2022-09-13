@@ -112,6 +112,26 @@ app.MapPost("/register", async ([FromBody] UserDto newUser) =>
     return Results.Ok(stringToken);
 });
 
+// User login
+app.MapPost("/login", ([FromBody] UserDto enteredUser) => { 
+
+    if(!usersList.Exists(x => x.UserName == enteredUser.UserName))
+    {
+        return Results.NotFound("User not found");
+    }
+    else if (enteredUser.UserName.IsNullOrEmpty())
+    {
+        return Results.BadRequest("you entered empty user name!");
+    }
+    User? userData=usersList.FirstOrDefault((x) => x.UserName == enteredUser.UserName);
+    if(!VerifyPassword(enteredUser.UserPassword, userData.PasswordHash, userData.PasswordSalt))
+    {
+        return Results.BadRequest("Password incorrect");
+    }
+    string token = CreateToken(enteredUser.UserName);
+    return Results.Ok(token);
+});
+
 //Get all recipes
 app.MapGet("/recipes", () =>
 {
@@ -283,12 +303,22 @@ string CreateToken(string userName)
     return stringToken;
 }
 
+
 void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
 {
     using (var hmac= new HMACSHA512())
     {
         passwordSalt = hmac.Key;
         passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+    }
+}
+
+bool VerifyPassword(string password, byte[] passwordHash, byte[] passwordSalt)
+{
+    using (var hmac = new HMACSHA512(passwordSalt))
+    {
+        var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+        return computedHash.SequenceEqual(passwordHash);
     }
 }
 
