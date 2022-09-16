@@ -16,6 +16,16 @@
     let recipesList = [];
     let categoriesList = []
 
+    async function userRegister(newUser) {
+        const response = await fetch("@Model.ApiUrl/register", {
+            method: "POST",
+            body: JSON.stringify(newRecipe),
+            headers: {
+                'Content-Type': 'application/json;',
+            }
+        });
+    }
+
     async function fetchRecipesJSON() {
         const response = await fetch("@Model.ApiUrl/recipes");
         const recipes = await response.json();
