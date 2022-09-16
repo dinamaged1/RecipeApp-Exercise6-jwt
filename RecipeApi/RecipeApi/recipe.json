@@ -1,138 +1,199 @@
 [
     {
-        "Id": "0aaecdaf-9c8d-42cf-ba4f-c840cee29c3c",
-        "Title": "Pizza",
-        "Imagepath": "/RecipesImages/0aaecdaf-9c8d-42cf-ba4f-c840cee29c3c..jpg",
+        "Id": "cbc7a798-bc15-4808-bdaf-902470387030",
+        "Title": "Pancakes",
+        "ImagePath": "/RecipesImages/cbc7a798-bc15-4808-bdaf-902470387030.jpg",
         "Ingredients": [
-            "2 cups lukewarm water\r",
-            "1 pinch sugar\r",
-            "1 1/2 tablespoons active dry yeast\r",
-            "2 tablespoons olive oil\r",
-            "5 1/4 cups all purpose flour or bread flour\r",
-            "1 1/2 teaspoons salt    "
+            "2 eggs",
+            "1 cup of milk",
+            "4 spoons of oil",
+            "1/3 cup of brown sugar",
+            "1 1/4 cups of flour",
+            "2 teaspoons of baking powder",
+            "1/4 teaspoons of vanilla extract"
         ],
         "Instructions": [
-            "Add the olive oil, flour and salt, with the hook attachment start to combine on low speed #1, scrape the hook and then raise to medium speed #2 and knead for approximately 5-7 minutes or until you have a smooth elastic dough (scrape the hook halfway through kneading).  \r",
-            "Place in a lightly oiled bowl, roll the dough to cover lightly with the oil, cover the bowl with plastic wrap and a large clean kitchen towel, leave in a warm draft free area until doubled in bulk, approximately 2 hours.\r",
-            "Pre heat oven to 450\u00B0 (250\u00B0 celsius). Punch dough down a few times and divide into 1-3 balls, let dough rest for 20 minutes.\r",
-            "Place the dough in the desired pizza or cookie sheets (lightly oiled) and shape the dough into the desired shapes (using your clean hands). \r",
-            "Top with your favourite toppings (without the cheese), bake for approximately 15-20 minutes (until crust is golden) and then top with grated mozzarella cheese and bake for three more minutes or until cheese is melted.\r",
-            "At this point, dough can also be refrigerated, place in plastic bag, remove air and tie securely up to 24 hours."
+            "In a large bowl, sift together the flour, baking powder, salt and sugar. Make a well in the center and pour in the milk, egg and melted butter; mix until smooth.",
+            "Heat a lightly oiled griddle or frying pan over medium-high heat. Pour or scoop the batter onto the griddle, using approximately 1/4 cup for each pancake. Brown on both sIdes and serve hot."
+        ],
+        "Categories": [
+            "Dessert",
+            "Hot drinks"
+        ]
+    },
+    {
+        "Id": "7143b3d0-5d3e-45f4-be0c-d05764a6acf5",
+        "Title": "Chocolate cake",
+        "ImagePath": "/RecipesImages/7143b3d0-5d3e-45f4-be0c-d05764a6acf5.jpg",
+        "Ingredients": [
+            "all-purpose flour",
+            "sugar",
+            "unsweetened cocoa powder",
+            "baking powder",
+            "baking soda",
+            "salt",
+            "espresso powder",
+            "milk ",
+            "oil",
+            "eggs",
+            "vanilla extract",
+            "boiling water"
+        ],
+        "Instructions": [
+            "Preheat the oven to 350º F. Prepare two 9-inch cake pans by spraying with baking spray or buttering and lightly flouring.",
+            "Add flour, sugar, cocoa, baking powder, baking soda, salt and espresso powder to a large bowl or the bowl of a stand mixer. Whisk through to combine or, using your paddle attachment, stir through flour mixture until combined well.",
+            "Add milk, vegetable oil, eggs, and vanilla to flour mixture and mix together on medium speed until well combined. Reduce speed and carefully add boiling water to the cake batter until well combined.",
+            "Distribute cake batter evenly between the two prepared cake pans. Bake for 30-35 minutes, until a toothpick or cake tester inserted in the center of the chocolate cake comes out clean."
+        ],
+        "Categories": [
+            "Dessert"
+        ]
+    },
+    {
+        "Id": "5528030c-8ad2-46d7-84ff-4bf6e676ea13",
+        "Title": "Hot Chocolate",
+        "ImagePath": "/RecipesImages/5528030c-8ad2-46d7-84ff-4bf6e676ea13.jpg",
+        "Ingredients": [
+            "2 cups milk",
+            "2 tablespoons unsweetened cocoa powder",
+            "2 tablespoons granulated sugar",
+            "¼ cup chocolate chips",
+            "⅛ teaspoon vanilla extract"
+        ],
+        "Instructions": [
+            "Place the milk of your choice in a saucepan over medium-low heat. Using milk instead of water, makes this hot chocolate extra creamy and flavorful.",
+            "Once the milk is warm, add chocolate chips, whisking until they melt into the milk.",
+            "Whisk in cocoa powder and sugar, and heat until warm.",
+            "Add a splash of vanilla extract."
+        ],
+        "Categories": [
+            "Dessert",
+            "Mexican food"
+        ]
+    },
+    {
+        "Id": "bcf0a434-3bda-4ade-9849-aa82d2b6203a",
+        "Title": "Spaghetti",
+        "ImagePath": "/RecipesImages/bcf0a434-3bda-4ade-9849-aa82d2b6203a.jpg",
+        "Ingredients": [
+            "250 grams Del Monte Spaghetti Pasta",
+            "1 Carrot (Gajjar) , thinly sliced",
+            "1 Green Bell Pepper (Capsicum) , thinly sliced",
+            "1 teaspoon Dried oregano",
+            "1 teaspoon Red Chilli flakes",
+            "1 tablespoon Extra Virgin Olive Oil"
+        ],
+        "Instructions": [
+            "To begin making the Spaghetti Pasta Recipe In Creamy Tomato Sauce start by boiling the Del Monte spaghetti pasta in hot water and a little bit of salt. Keep a saucepan filled with water over a medium heat.",
+            "Drop in the spaghetti pasta and a pinch of salt and leave it to boil. Boil the spaghetti pasta till it just the biting consistency which is the al dente.",
+            "Strain the water and rinse the cooked spaghetti pasta over cold water, to stop cooking the pasta. Drizzle the pasta with olive oil and keep asIde.",
+            "The next step is to make Tomato basil sauce. Into a pressure cooker, cut the tomatoes into half and place the tomatoes into a pressure cooker. Allow the tomatoes to pressure cook just for one whistle.",
+            "After the first whistle release the pressure immediately and allow the tomatoes to cool. Once cooled, drain the water from the tomatoes. Remove the skin from the tomatoes and place the pulp into the mixer grinder and make a smooth puree.",
+            "At this stage add the carrots and capsicum and roast the vegetables until soft and is cooked. Once cooked add in the freshly made tomato puree, the basil leaves, red chilli flakes, oregano, salt and pepper and bring the mixture to a brisk boil for 3 to 4 minutes.",
+            "Stir in the cooked spaghetti pasta into the tomato basil sauce.",
+            "Stir in the cream, and stir fry Spaghetti Pasta the on high heat until the spaghetti gets well coated with the sauce.",
+            "Serve the Spaghetti Pasta Recipe In Creamy Tomato Sauce along with a glass of Cantaloupe Pomegranate and Mint Juice, Cheese Garlic Bread and Asian Watermelon Salad Recipe to the sIde to let the kIds enjoy their dish."
+        ],
+        "Categories": [
+            "Italian food",
+            "Spicy food"
+        ]
+    },
+    {
+        "Id": "1a3ad3fe-b3b2-498f-bb3c-ccbe41c5c3e6",
+        "Title": "Potato and leek soup",
+        "ImagePath": "/RecipesImages/1a3ad3fe-b3b2-498f-bb3c-ccbe41c5c3e6.jpg",
+        "Ingredients": [
+            "60ml (1/4 cup) olive oil",
+            "1 brown onion, halved, chopped",
+            "1 garlic clove, crushed",
+            "4 medium (about 700g) desiree potatoes, or pontiac potatoes, peeled, cut into 2cm cubes",
+            "Massel vegetable liquId stock",
+            "125ml (1/2 cup) thickened cream",
+            "3 thick slices day-old white bread, crusts removed, cut into 2cm cubes",
+            "2 tbsp finely chopped fresh chives"
+        ],
+        "Instructions": [
+            "Heat olive oil in a large saucepan over medium-high heat. Add the onion and garlic and cook, stirring, for 3 minutes or until the onion softens. Add the potato and leek and cook, stirring, for 5 minutes or until leek softens.",
+            "Add the stock and bring to the boil. Reduce heat to medium and gently boil, uncovered, for 20 minutes or until potato is soft. Remove from heat and set asIde for 10 minutes to cool.",
+            "Meanwhile, preheat oven to 200C or 180C fan-forced. Place bread in a roasting pan. Drizzle with remaining oil and toss until bread is evenly coated. Toast in preheated oven, shaking pan occasionally, for 10-15 minutes or until crisp. Remove croutons from oven and set asIde.",
+            "Transfer one-third of the potato mixture to the jug of a blender and blend until smooth. Transfer to a clean saucepan. Repeat in 2 more batches with the remaining potato mixture. Alternatively, use a stick blender to blend in the saucepan.",
+            "Place the soup over medium heat. Add the cream and stir to combine. Cook, stirring, for 5 minutes or until hot. Taste and season with salt.",
+            "Ladle the soup among serving bowls. Top with croutons, chives , a drizzle of olive oil and serve immediately."
+        ],
+        "Categories": [
+            "Greek food"
+        ]
+    },
+    {
+        "Id": "320dab59-3fa8-4df9-8f57-aa3b2b90131d",
+        "Title": "Pan Chicken",
+        "ImagePath": "/RecipesImages/320dab59-3fa8-4df9-8f57-aa3b2b90131d.jpg",
+        "Ingredients": [
+            "Fingerling potatoes",
+            "Olive oil",
+            "Boneless, skinless chicken thighs",
+            "Lemon",
+            "Red onion",
+            "Everything you love most from the olive bar",
+            "Garlic powder"
+        ],
+        "Instructions": [
+            "Chop up the onion, lemon and potatoes (no, you don’t need to peel them).",
+            "Pop the potatoes into the oven (dressed with a little oil, salt & pepper) to get a jump on roasting, since they take a little longer than everything else.",
+            "15 minutes later, add the chicken, olive bar Ingredients, lemon, onion and a little more salt, pepper, garlic powder and oil to the pan, and let it all continue cooking.",
+            "35 minutes later, dinner is done!"
+        ],
+        "Categories": [
+            "Asian food"
+        ]
+    },
+    {
+        "Id": "abb6f306-653a-4d4a-a18d-dbc45b5266da",
+        "Title": "Pizza",
+        "ImagePath": "/RecipesImages/abb6f306-653a-4d4a-a18d-dbc45b5266da.jpg",
+        "Ingredients": [
+            "½ heaping cup pizza sauce",
+            "8 ounces fresh bocconcini mozzarella, sliced",
+            "½ cup sliced cherry tomatoes",
+            "10 basil leaves",
+            "Pinch red pepper flakes",
+            "Extra-virgin olive oil, for drizzling"
+        ],
+        "Instructions": [
+            "Spread the pizza sauce onto the dough. Top with the fresh mozzarella and tomatoes and bake 10 to 12 minutes, or until the crust is browned. Remove from the oven and top with fresh basil leaves and a pinch of red pepper flakes. Drizzle with olive oil and serve."
         ],
         "Categories": [
             "Italian food"
         ]
     },
     {
-        "Id": "22839489-f688-44b0-9f18-1457d4b63683",
-        "Title": "Cheese Burger",
-        "Imagepath": "/RecipesImages/22839489-f688-44b0-9f18-1457d4b63683..jpg",
+        "Id": "72022aec-d912-44ae-8a35-6a7130a20a47",
+        "Title": "Basbousa",
+        "ImagePath": "/RecipesImages/72022aec-d912-44ae-8a35-6a7130a20a47.jpg",
         "Ingredients": [
-            "1 pound ground lean (7% fat) beef\r",
-            "1 large egg\r",
-            "\u00BD cup minced onion\r",
-            "\u00BC cup fine dried bread crumbs\r",
-            "1 tablespoon Worcestershire\r",
-            "1 or 2 cloves garlic, peeled and minced\r",
-            "About 1/2 teaspoon salt\r",
-            "About 1/4 teaspoon pepper\r",
-            "4 hamburger buns (4 in. wide), split\r",
-            "About 1/4 cup mayonnaise\r",
-            "About 1/4 cup ketchup\r",
-            "4 iceberg lettuce leaves, rinsed and crisped\r",
-            "1 firm-ripe tomato, cored and thinly sliced\r",
-            "4 thin slices red onion      "
+            "1 2/3 cup (306g) Farina.",
+            "1/2 cup ghee.",
+            "1 Tablespoon honey.",
+            "1/2 cup (116g) sugar.",
+            "1/2 cup (97g) plain yogurt.  ",
+            "1/2 Tablespoon (6g) baking powder.",
+            "1/2 cup (45g) unsweetened coconut flakes",
+            "0.5 Tablespoon tahini."
         ],
         "Instructions": [
-            "In a bowl, mix ground beef, egg, onion, bread crumbs, Worcestershire, garlic, 1/2 teaspoon salt, and 1/4 teaspoon pepper until well blended. Divide mixture into four equal portions and shape each into a patty about 4 inches wide.\r",
-            "Lay burgers on an oiled barbecue grill over a solid bed of hot coals or high heat on a gas grill (you can hold your hand at grill level only 2 to 3 seconds); close lid on gas grill. Cook burgers, turning once, until browned on both sides and no longer pink inside (cut to test), 7 to 8 minutes total. Remove from grill.\r",
-            "Lay buns, cut side down, on grill and cook until lightly toasted, 30 seconds to 1 minute.\r",
-            "Spread mayonnaise and ketchup on bun bottoms. Add lettuce, tomato, burger, onion, and salt and pepper to taste. Set bun tops in place."
+            "In a deep bowl, add farina, sugar, baking powder and coconut flakes if using. Mixing everything well.",
+            "Melt ghee and dissolve honey in it. Pour ghee over the dry Ingredients and mix well with a spoon until you feel that all farina granules have been well covered with ghee mixture. You'll end up with a well-wet sandy textured mixture. ",
+            "Now add the yogurt to the mix.",
+            "Mix just enough until it disappears in the mixture. Do Not Overmix, if you are afraId you might overmix the Ingredients, use your hands.",
+            "Brush the baking sheet/pan with tahini and ghee. This is a tip I've got from many cooks, I used to brush mine with melted butter though. Dump in your baasbousa mix.",
+            "Spread the farina mixture evenly on the pan pressing down with your fingers.",
+            "Decorate with nuts if desired in any way you like. My guests just like the decoration above with pistachios and almonds so I stick to that each time.",
+            "Bake basbousa in 350F preheated oven, on the mIddle rack,  until the edges start to brown but do not leave it more than 15 minutes even if you dId not notice it browning."
         ],
         "Categories": [
-            "American food"
-        ]
-    },
-    {
-        "Id": "c1200ca5-3866-4665-9e17-a8b65f6ab627",
-        "Title": "Steak",
-        "Imagepath": "/RecipesImages/c1200ca5-3866-4665-9e17-a8b65f6ab627..jpg",
-        "Ingredients": [
-            "1 - 2 boneless ribeye or scotch fillet , 2.5 cm / 1\\u0022 thick, approx 300g/10 oz each (Note 1)\r",
-            "1 tbsp vegetable oil\r",
-            "Salt and pepper\r",
-            "75g / 5 tbsp unsalted butter , cut into 1.25cm / 1/2\\u0022 cubes (Note 2)\r",
-            "6 sprigs fresh thyme or 3 sprigs rosemary\r",
-            "5 garlic cloves  "
-        ],
-        "Instructions": [
-            "Heat oil in a heavy based skillet over high heat until it is very hot - you should see smoke!\r",
-            "Cook for 2 - 2.5 minutes until you get a great crust, then turn.\r",
-            "Leave for 1 minute, then push steaks to one side and toss in butter, garlic and thyme. BE CAREFUL - the thyme will sputter!\r",
-            "As soon as the butter is melted, continuously spoon the butter over the steak until it\\u0027s cooked to your liking - 2 minutes in total for the 2nd side for medium rare (52C/125F, chart below for other doneness temps).\r",
-            "Serve steak with a bit of the butter from the skillet drizzled on top. Pictured in post with Crispy Smashed Potatoes."
-        ],
-        "Categories": [
-            "Mexican food",
-            "American food"
-        ]
-    },
-    {
-        "Id": "175130cc-800b-434d-9ced-27b7f76d2bb8",
-        "Title": "Berry Ice Cream",
-        "Imagepath": "/RecipesImages/175130cc-800b-434d-9ced-27b7f76d2bb8..jpg",
-        "Ingredients": [
-            "2 cups fresh or frozen mixture of berries, stemmed (sliced, if needed)\r",
-            "1 cup sugar\r",
-            "1 cup whole milk\r",
-            "2 cups heavy cream\r",
-            "1 tsp pure vanilla extract     "
-        ],
-        "Instructions": [
-            "In a bowl, whisk together the milk and sugar until sugar is dissolved.\r",
-            "Stir in heavy cream and vanilla, and whisk to combine well.\r",
-            "Turn ice cream make on and pour milk/cream mixture in. Follow directions on your ice cream maker for churning; generally about 25-30 minutes.\r",
-            "During last 5-10 minutes of churning, add the berries (including juices from macerating, if any.)\r",
-            "Ice cream may be soft and need to firm up in freezer for 2-3 hours before serving."
-        ],
-        "Categories": [
-            "Desserts",
-            "Fruits"
-        ]
-    },
-    {
-        "Id": "f2eb3803-76af-4e0e-805a-956344dd7eb1",
-        "Title": "Hot Chocolate",
-        "Imagepath": "/RecipesImages/f2eb3803-76af-4e0e-805a-956344dd7eb1..jpg",
-        "Ingredients": [
-            "2 cups milk\r",
-            "2 tablespoons unsweetened cocoa powder\r",
-            "2 tablespoons granulated sugar\r",
-            "\u00BC cup chocolate chips\r",
-            "\u215B teaspoon vanilla extract "
-        ],
-        "Instructions": [
-            "Place the milk of your choice in a saucepan over medium-low heat. Using milk instead of water, makes this hot chocolate extra creamy and flavorful. I prefer whole milk or 2% milk.\r",
-            "Once the milk is warm, add chocolate chips, whisking until they melt into the milk.\r",
-            "Whisk in cocoa powder and sugar, and heat until warm.\r",
-            "Add a splash of vanilla extract."
-        ],
-        "Categories": [
-            "Hot drinks"
-        ]
-    },
-    {
-        "Id": "d99db9d5-642b-4435-ac51-9b35385d43a6",
-        "Title": "Salad",
-        "Imagepath": "/RecipesImages/d99db9d5-642b-4435-ac51-9b35385d43a6..jpg",
-        "Ingredients": [
-            " xx"
-        ],
-        "Instructions": [
-            "xx"
-        ],
-        "Categories": [
-            "Salad"
+            "Egyptian food",
+            "Dessert"
         ]
     }
 ]

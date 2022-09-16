@@ -326,6 +326,217 @@ body {
     display: block;
 }
 
+/*login-signup*/
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+
+#loginSection * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+#loginSection {
+    display: grid;
+    height: 95vh;
+    width: 100%;
+    place-items: center;
+    background: -webkit-linear-gradient(left, #8cd2cc,#9dfcff4d,#c1ffffeb, #2199a2);
+}
+
+    #loginSection .wrapper {
+        overflow: hidden;
+        max-width: 390px;
+        background: #fff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0px 15px 20px rgba(0,0,0,0.1);
+    }
+
+        #loginSection .wrapper .title-text {
+            display: flex;
+            width: 200%;
+        }
+
+        #loginSection .wrapper .title {
+            width: 50%;
+            font-size: 35px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
+        }
+
+        #loginSection .wrapper .slide-controls {
+            position: relative;
+            display: flex;
+            height: 50px;
+            width: 100%;
+            overflow: hidden;
+            margin: 30px 0 10px 0;
+            justify-content: space-between;
+            border: 1px solid lightgrey;
+            border-radius: 15px;
+        }
+
+    #loginSection .slide-controls .slide {
+        height: 100%;
+        width: 100%;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 500;
+        text-align: center;
+        line-height: 48px;
+        cursor: pointer;
+        z-index: 1;
+        transition: all 0.6s ease;
+    }
+
+    #loginSection .slide-controls label.signup {
+        color: #000;
+    }
+
+    #loginSection .slide-controls .slider-tab {
+        position: absolute;
+        height: 100%;
+        width: 50%;
+        left: 0;
+        z-index: 0;
+        border-radius: 15px;
+        background: -webkit-linear-gradient(left, #468282eb,#2ea5a5eb,#6bbcbceb, #b0e9e9eb);
+        transition: all 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
+    }
+
+    #loginSection input[type="radio"] {
+        display: none;
+    }
+
+    #loginSection #signup:checked ~ .slider-tab {
+        left: 50%;
+    }
+
+    #loginSection #signup:checked ~ label.signup {
+        color: #fff;
+        cursor: default;
+        user-select: none;
+    }
+
+    #loginSection #signup:checked ~ label.login {
+        color: #000;
+    }
+
+    #loginSection #login:checked ~ label.signup {
+        color: #000;
+    }
+
+    #loginSection #login:checked ~ label.login {
+        cursor: default;
+        user-select: none;
+    }
+
+    #loginSection .wrapper .form-container {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    #loginSection .form-container .form-inner {
+        display: flex;
+        width: 200%;
+    }
+
+        #loginSection .form-container .form-inner form {
+            width: 50%;
+            transition: all 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
+        }
+
+    #loginSection .form-inner form .field {
+        height: 50px;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+        #loginSection .form-inner form .field input {
+            height: 100%;
+            width: 100%;
+            outline: none;
+            padding-left: 15px;
+            border-radius: 15px;
+            border: 1px solid lightgrey;
+            border-bottom-width: 2px;
+            font-size: 17px;
+            transition: all 0.3s ease;
+        }
+
+            #loginSection .form-inner form .field input:focus {
+                border-color: #1a75ff;
+                /* box-shadow: inset 0 0 3px #fb6aae; */
+            }
+
+            #loginSection .form-inner form .field input::placeholder {
+                color: #999;
+                transition: all 0.3s ease;
+            }
+
+    #loginSection form .field input:focus::placeholder {
+        color: #1a75ff;
+    }
+
+    #loginSection.form-inner form .pass-link {
+        margin-top: 5px;
+    }
+
+    #loginSection .form-inner form .signup-link {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+        #loginSection .form-inner form .pass-link a,
+        #loginSection .form-inner form .signup-link a {
+            color: #1a75ff;
+            text-decoration: none;
+        }
+
+            #loginSection .form-inner form .pass-link a:hover,
+            #loginSection .form-inner form .signup-link a:hover {
+                text-decoration: underline;
+            }
+
+#loginSection form .btn {
+    height: 50px;
+    width: 100%;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+    #loginSection form .btn .btn-layer {
+        height: 100%;
+        width: 300%;
+        position: absolute;
+        left: -100%;
+        background: -webkit-linear-gradient(left, #2e9a9aeb,#66d1d49e,#075757eb, #eb55de82);
+        border-radius: 15px;
+        transition: all 0.4s ease;
+    }
+
+    #loginSection form .btn:hover .btn-layer {
+        left: 0;
+    }
+
+    #loginSection form .btn input[type="submit"] {
+        height: 100%;
+        width: 100%;
+        z-index: 1;
+        position: relative;
+        background: none;
+        border: none;
+        color: #fff;
+        padding-left: 0;
+        border-radius: 15px;
+        font-size: 20px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
 @media screen and (max-width: 1500px) {
     .c-recipe-details-background {
         min-height: 75vh;
