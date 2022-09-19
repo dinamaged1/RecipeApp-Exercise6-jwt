@@ -104,44 +104,45 @@ List<string> categoryList = new List<string>(savedCategories!);
 // User register
 app.MapPost("/register", async ([FromBody] UserDto newUser) =>
 {
-    if (newUser.UserPassword.IsNullOrEmpty() || newUser.UserPassword.Length<6)
+    if (newUser.UserPassword.IsNullOrEmpty())
     {
         return Results.BadRequest("Invalid password!");
     }
-    else if(newUser.UserName.IsNullOrEmpty() || usersList.Exists(x => x.UserName == newUser.UserName))
+    else if(newUser.Username.IsNullOrEmpty() || usersList.Exists(x => x.Username == newUser.Username))
     {
         return Results.BadRequest("Invalid user name");
     }
 
     CreatePasswordHash(newUser.UserPassword, out byte[] passwordHash, out byte[] passwordSalt);
     User addedUser = new User();
-    addedUser.UserName = newUser.UserName;
+    addedUser.Username = newUser.Username;
     addedUser.PasswordHash = passwordHash;
     addedUser.PasswordSalt = passwordSalt;
     
     usersList.Add(addedUser);
     await SaveUserToJson();
-    var stringToken = CreateToken(newUser.UserName);
+    var stringToken = CreateToken(newUser.Username);
     return Results.Ok(stringToken);
 });
 
 // User login
 app.MapPost("/login", ([FromBody] UserDto enteredUser) => { 
 
-    if(!usersList.Exists(x => x.UserName == enteredUser.UserName))
+    if(!usersList.Exists(x => x.Username == enteredUser.Username))
     {
+        Results.Text("User not found");
         return Results.NotFound("User not found");
     }
-    else if (enteredUser.UserName.IsNullOrEmpty())
+    else if (enteredUser.Username.IsNullOrEmpty())
     {
         return Results.BadRequest("you entered empty user name!");
     }
-    User? userData=usersList.FirstOrDefault((x) => x.UserName == enteredUser.UserName);
+    User? userData=usersList.FirstOrDefault((x) => x.Username == enteredUser.Username);
     if(!VerifyPassword(enteredUser.UserPassword, userData.PasswordHash, userData.PasswordSalt))
     {
         return Results.BadRequest("Password incorrect");
     }
-    string token = CreateToken(enteredUser.UserName);
+    var token = CreateToken(enteredUser.Username);
     return Results.Ok(token);
 });
 
