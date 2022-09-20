@@ -34,10 +34,11 @@ builder.Services.AddAuthentication(options =>
     {
         IssuerSigningKey = new SymmetricSecurityKey
             (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = false,
-        ValidateIssuerSigningKey = true
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero
     };
 });
 builder.Services.AddAuthorization();
@@ -85,7 +86,7 @@ try
     string userJson = await ReadJsonFile("user");
     string recipeJson = await ReadJsonFile("recipe");
     string categoryJson = await ReadJsonFile("category");
-    
+
     savedRecipes = JsonSerializer.Deserialize<List<Recipe>>(recipeJson);
     savedCategories = JsonSerializer.Deserialize<List<string>>(categoryJson);
     savedUsers = JsonSerializer.Deserialize<List<User>>(userJson);
@@ -108,17 +109,18 @@ app.MapPost("/register", async ([FromBody] UserDto newUser) =>
     {
         return Results.BadRequest("Invalid password!");
     }
-    else if(newUser.Username.IsNullOrEmpty() || usersList.Exists(x => x.Username == newUser.Username))
+    else if (newUser.Username.IsNullOrEmpty() || usersList.Exists(x => x.Username == newUser.Username))
     {
         return Results.BadRequest("Invalid user name");
     }
 
     CreatePasswordHash(newUser.UserPassword, out byte[] passwordHash, out byte[] passwordSalt);
     User addedUser = new User();
+    addedUser.Id = new Guid().ToString();
     addedUser.Username = newUser.Username;
     addedUser.PasswordHash = passwordHash;
     addedUser.PasswordSalt = passwordSalt;
-    
+
     usersList.Add(addedUser);
     await SaveUserToJson();
     var stringToken = CreateToken(newUser.Username);
@@ -126,9 +128,10 @@ app.MapPost("/register", async ([FromBody] UserDto newUser) =>
 });
 
 // User login
-app.MapPost("/login", ([FromBody] UserDto enteredUser) => { 
+app.MapPost("/login", ([FromBody] UserDto enteredUser, Microsoft.AspNetCore.Http.HttpResponse response) =>
+{
 
-    if(!usersList.Exists(x => x.Username == enteredUser.Username))
+    if (!usersList.Exists(x => x.Username == enteredUser.Username))
     {
         Results.Text("User not found");
         return Results.NotFound("User not found");
@@ -137,13 +140,47 @@ app.MapPost("/login", ([FromBody] UserDto enteredUser) => {
     {
         return Results.BadRequest("you entered empty user name!");
     }
-    User? userData=usersList.FirstOrDefault((x) => x.Username == enteredUser.Username);
-    if(!VerifyPassword(enteredUser.UserPassword, userData.PasswordHash, userData.PasswordSalt))
+    User? userData = usersList.FirstOrDefault((x) => x.Username == enteredUser.Username);
+    if (!VerifyPassword(enteredUser.UserPassword, userData.PasswordHash, userData.PasswordSalt))
     {
         return Results.BadRequest("Password incorrect");
     }
+
     var token = CreateToken(enteredUser.Username);
+
+    var refreshToken = GenerateRefreshToken();
+    SetRefreshToken(refreshToken, userData, response);
+
     return Results.Ok(token);
+});
+
+// Refresh token
+app.MapPost("/refreshToken", ([FromBody] string username, Microsoft.AspNetCore.Http.HttpRequest request, Microsoft.AspNetCore.Http.HttpResponse response) =>
+{
+    User? specifiedUser=new User();
+    var refreshToken = request.Cookies["refreshToken"];
+    if (!usersList.IsNullOrEmpty() && !username.IsNullOrEmpty() && usersList.Exists(x => x.Username == username))
+    {
+        specifiedUser = usersList.Find(x => x.Username == username);
+    }
+    else
+    {
+        return Results.BadRequest();
+    }
+    if (!specifiedUser.RefreshToken.Equals(refreshToken))
+    {
+        return Results.Json("Invalid Refresh Token.", statusCode: 401);
+    }
+    else if (specifiedUser.TokenExpires < DateTime.Now)
+    {
+        return Results.Json("Token Expired.", statusCode: 401);
+    }
+    string token = CreateToken(username);
+    var newRefreshToken = GenerateRefreshToken();
+    SetRefreshToken(newRefreshToken, specifiedUser,response);
+
+    return Results.Ok(token);
+
 });
 
 //Get all recipes
@@ -216,7 +253,7 @@ app.MapGet("/categories", () =>
         return Results.Ok(categoryList);
     else
         return Results.NoContent();
-});
+}).RequireAuthorization();
 
 //Add category
 app.MapPost("/category", async ([FromBody] string newCategory) =>
@@ -317,10 +354,34 @@ string CreateToken(string userName)
     return stringToken;
 }
 
+RefreshToken GenerateRefreshToken()
+{
+    var refreshToken = new RefreshToken
+    {
+        Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+        Expires = DateTime.Now.AddDays(7),
+        Created = DateTime.Now
+    };
+    return refreshToken;
+}
+
+void SetRefreshToken(RefreshToken newRefreshToken, User loggedUser, Microsoft.AspNetCore.Http.HttpResponse response)
+{
+    var cookieOptions = new CookieOptions
+    {
+        HttpOnly = true,
+        Expires = newRefreshToken.Expires
+    };
+
+    response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
+    loggedUser.RefreshToken = newRefreshToken.Token;
+    loggedUser.TokenCreated = newRefreshToken.Created;
+    loggedUser.TokenExpires = newRefreshToken.Expires;
+}
 
 void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
 {
-    using (var hmac= new HMACSHA512())
+    using (var hmac = new HMACSHA512())
     {
         passwordSalt = hmac.Key;
         passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
