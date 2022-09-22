@@ -192,7 +192,7 @@ app.MapPost("/refreshToken", ([FromBody] string username, Microsoft.AspNetCore.H
     List<string> tokens = new List<string>()
     {
         token,
-        newRefreshToken.ToString()
+        newRefreshToken.Token.ToString()
     };
     return Results.Ok(tokens);
 
