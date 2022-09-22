@@ -16,6 +16,16 @@
     let recipesList = [];
     let categoriesList = []
 
+    function checkAuthentication() {
+        let isLogged = window.localStorage.getItem('authenticated');
+        if (isLogged) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     async function userRegister(newUser) {
         let user = { "username": newUser.username, "userPassword": newUser.password }
         const response = await fetch("@Model.ApiUrl/register", {
