@@ -77,8 +77,11 @@
         if (response.status === 200) {
             let tokens = await response.json();
             document.getElementById("login-message").hidden = true;
-            createCookie("access-token", tokens[0], 5);
-            createCookie("refresh-token", tokens[1], 20);
+            createCookie("access", tokens[0], 5);
+            createCookie("refresh", tokens[1], 20);
+            window.localStorage.setItem('username', user.username);
+            window.localStorage.setItem('authenticated', 'true');
+
         }
         else if (response.status === 404) {
             document.getElementById("login-message").hidden = false;
@@ -90,10 +93,49 @@
         }
     }
 
+    async function generateRefreshToken() {
+        const response = await fetch("@Model.ApiUrl/refreshToken", {
+            method: "POST",
+            body: JSON.stringify(username),
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json;',
+                "Access-Control-Allow-Origin": "*",
+            }
+        });
+        if (response.status === 200) {
+            createCookie("access", tokens[0], 5);
+            createCookie("refresh", tokens[1], 20);
+            return true;
+        }
+        else {
+
+            window.localStorage.setItem('authenticated', 'false');
+            document.cookie = access + ";max-age=0";
+            document.cookie = refresh + ";max-age=0";
+            window.localStorage.removeItem('username');
+
+            Swal.fire({
+                title: 'Login Again!',
+                showDenyButton: false,
+                showCancelButton: false,
+                confirmButtonText: 'OK',
+                denyButtonText: `Cancel`,
+                allowOutsideClick: false,
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    location.reload();
+                    return false;
+                }
+            })
+        }
+    }
+
     async function fetchRecipesJSON() {
         let x = document.cookie;
 
-        let accessToken = getCookie('access-token');
+        let accessToken = getCookie('access');
 
         const response = await fetch("@Model.ApiUrl/recipes", {
             credentials: "same-origin",
@@ -110,7 +152,7 @@
     }
 
     async function fetchCategoriesJSON() {
-        let accessToken = getCookie('access-token');
+        let accessToken = getCookie('access');
         const response = await fetch("@Model.ApiUrl/categories", {
             headers: {
                 'Content-Type': 'application/json;',
@@ -124,7 +166,7 @@
     }
 
     async function fetchRecipe(recipeId) {
-        let accessToken = getCookie('access-token');
+        let accessToken = getCookie('access');
         const response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
             method: "GET",
             headers: {
@@ -253,7 +295,7 @@
                 "categories": toBeEditRecipe.categories
             }
 
-            let accessToken = getCookie('access-token');
+            let accessToken = getCookie('access');
 
             let response = await fetch(`@Model.ApiUrl/recipe/${toBeEditRecipe.id}`, {
                 method: "PUT",
@@ -313,7 +355,7 @@
     }
 
     async function deleteRecipe(toBeDeletedRecipe) {
-        let accessToken = getCookie('access-token');
+        let accessToken = getCookie('access');
 
         if (toBeDeletedRecipe.id != "") {
             let response = await fetch(`@Model.ApiUrl/recipe/${toBeDeletedRecipe.id}`, {
@@ -338,7 +380,7 @@
     }
 
     async function addCategory(newCategory) {
-        let accessToken = getCookie('access-token');
+        let accessToken = getCookie('access');
 
         $('#addCategoryModal').modal('hide');
         if (newCategory !== "") {
@@ -381,7 +423,7 @@
 
     async function editCategory(toBeEditedCategory, newCategoryName) {
 
-        let accessToken = getCookie('access-token');
+        let accessToken = getCookie('access');
 
         $('#editCategoryModal').modal('hide');
         if (toBeEditedCategory !== "", newCategoryName !== "") {
@@ -418,7 +460,7 @@
     }
 
     async function deleteCategory(toBeDeletedCategory) {
-        let accessToken = getCookie('access-token');
+        let accessToken = getCookie('access');
 
         $('#deleteCategoryModal').modal('hide');
         if (toBeDeletedCategory !== "") {
