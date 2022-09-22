@@ -16,6 +16,10 @@
     let recipesList = [];
     let categoriesList = []
 
+    function checkAuthorization() {
+
+    }
+
     async function userRegister(newUser) {
         let user = { "username": newUser.username, "userPassword": newUser.password }
         const response = await fetch("@Model.ApiUrl/register", {

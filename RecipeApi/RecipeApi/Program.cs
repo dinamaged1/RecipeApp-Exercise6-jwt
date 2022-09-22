@@ -10,6 +10,7 @@ using RecipeApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,8 +35,8 @@ builder.Services.AddAuthentication(options =>
     {
         IssuerSigningKey = new SymmetricSecurityKey
             (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-        ValidateIssuer = true,
-        ValidateAudience = true,
+        ValidateIssuer = false,
+        ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ClockSkew = TimeSpan.Zero
@@ -149,7 +150,7 @@ app.MapPost("/login", ([FromBody] UserDto enteredUser, Microsoft.AspNetCore.Http
     var token = CreateToken(enteredUser.Username);
 
     var refreshToken = GenerateRefreshToken();
-    SetRefreshToken(refreshToken, userData, response);
+    SetRefreshToken(refreshToken, token, userData, response);
 
     return Results.Ok(token);
 });
@@ -157,7 +158,7 @@ app.MapPost("/login", ([FromBody] UserDto enteredUser, Microsoft.AspNetCore.Http
 // Refresh token
 app.MapPost("/refreshToken", ([FromBody] string username, Microsoft.AspNetCore.Http.HttpRequest request, Microsoft.AspNetCore.Http.HttpResponse response) =>
 {
-    User? specifiedUser=new User();
+    User? specifiedUser = new User();
     var refreshToken = request.Cookies["refreshToken"];
     if (!usersList.IsNullOrEmpty() && !username.IsNullOrEmpty() && usersList.Exists(x => x.Username == username))
     {
@@ -177,14 +178,14 @@ app.MapPost("/refreshToken", ([FromBody] string username, Microsoft.AspNetCore.H
     }
     string token = CreateToken(username);
     var newRefreshToken = GenerateRefreshToken();
-    SetRefreshToken(newRefreshToken, specifiedUser,response);
+    SetRefreshToken(newRefreshToken, token, specifiedUser, response);
 
     return Results.Ok(token);
 
 });
 
 //Get all recipes
-app.MapGet("/recipes", () =>
+app.MapGet("/recipes", [Authorize] () =>
 {
     if (recipesList != null)
         return Results.Ok(recipesList);
@@ -193,7 +194,7 @@ app.MapGet("/recipes", () =>
 }).WithName("GetRecipes");
 
 //Get specific  recipe
-app.MapGet("/recipe/{id}", (Guid id) =>
+app.MapGet("/recipe/{id}", [Authorize] (Guid id) =>
 {
     var selectedRecipeIndex = recipesList.FindIndex(x => x.Id == id);
     if (selectedRecipeIndex != -1)
@@ -207,7 +208,7 @@ app.MapGet("/recipe/{id}", (Guid id) =>
 });
 
 //Add new recipe
-app.MapPost("/recipe", async ([FromBody] Recipe newRecipe) =>
+app.MapPost("/recipe", [Authorize] async ([FromBody] Recipe newRecipe) =>
 {
     recipesList.Add(newRecipe);
     await SaveRecipeToJson();
@@ -215,7 +216,7 @@ app.MapPost("/recipe", async ([FromBody] Recipe newRecipe) =>
 });
 
 //Edit recipe
-app.MapPut("/recipe/{id}", async (Guid id, [FromBody] Recipe newRecipeData) =>
+app.MapPut("/recipe/{id}", [Authorize] async (Guid id, [FromBody] Recipe newRecipeData) =>
 {
     var selectedRecipeIndex = recipesList.FindIndex(x => x.Id == id);
     if (selectedRecipeIndex != -1)
@@ -231,7 +232,7 @@ app.MapPut("/recipe/{id}", async (Guid id, [FromBody] Recipe newRecipeData) =>
 });
 
 //Remove recipe
-app.MapDelete("/recipe/{id}", async (Guid id) =>
+app.MapDelete("/recipe/{id}", [Authorize] async (Guid id) =>
 {
     var selectedRecipeIndex = recipesList.FindIndex(x => x.Id == id);
     if (selectedRecipeIndex != -1)
@@ -247,7 +248,7 @@ app.MapDelete("/recipe/{id}", async (Guid id) =>
 });
 
 //Get all categories
-app.MapGet("/categories", () =>
+app.MapGet("/categories", [Authorize] () =>
 {
     if (categoryList != null)
         return Results.Ok(categoryList);
@@ -256,7 +257,7 @@ app.MapGet("/categories", () =>
 }).RequireAuthorization();
 
 //Add category
-app.MapPost("/category", async ([FromBody] string newCategory) =>
+app.MapPost("/category", [Authorize] async ([FromBody] string newCategory) =>
 {
     if (!categoryList.Contains(newCategory) && newCategory != "")
     {
@@ -271,7 +272,7 @@ app.MapPost("/category", async ([FromBody] string newCategory) =>
 });
 
 //Edit category
-app.MapPut("/category/{name}", async (string name, [FromBody] string newCategoryName) =>
+app.MapPut("/category/{name}", [Authorize] async (string name, [FromBody] string newCategoryName) =>
 {
     int indexOfCategory = categoryList.FindIndex(x => x == name);
     if (indexOfCategory != -1 && !categoryList.Contains(newCategoryName) && newCategoryName != "")
@@ -300,7 +301,7 @@ app.MapPut("/category/{name}", async (string name, [FromBody] string newCategory
 });
 
 //Delete Category
-app.MapDelete("category/{name}", async (string name) =>
+app.MapDelete("category/{name}", [Authorize] async (string name) =>
 {
     if (categoryList.Contains(name))
     {
@@ -342,7 +343,7 @@ string CreateToken(string userName)
                 new Claim(JwtRegisteredClaimNames.Jti,
                 Guid.NewGuid().ToString())
              }),
-        Expires = DateTime.UtcNow.AddMinutes(5),
+        Expires = DateTime.UtcNow.AddMinutes(2),
         SigningCredentials = new SigningCredentials
         (new SymmetricSecurityKey(key),
         SecurityAlgorithms.HmacSha512Signature)
@@ -365,7 +366,7 @@ RefreshToken GenerateRefreshToken()
     return refreshToken;
 }
 
-void SetRefreshToken(RefreshToken newRefreshToken, User loggedUser, Microsoft.AspNetCore.Http.HttpResponse response)
+void SetRefreshToken(RefreshToken newRefreshToken, string accessToken, User loggedUser, Microsoft.AspNetCore.Http.HttpResponse response)
 {
     var cookieOptions = new CookieOptions
     {
@@ -374,6 +375,7 @@ void SetRefreshToken(RefreshToken newRefreshToken, User loggedUser, Microsoft.As
     };
 
     response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
+    response.Cookies.Append("accessToken", accessToken, cookieOptions);
     loggedUser.RefreshToken = newRefreshToken.Token;
     loggedUser.TokenCreated = newRefreshToken.Created;
     loggedUser.TokenExpires = newRefreshToken.Expires;
