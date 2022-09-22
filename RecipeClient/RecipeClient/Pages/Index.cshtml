@@ -34,30 +34,32 @@
         }
     }
 
-    //function createCookie(name, value, minutes) {
-    //    if (minutes) {
-    //        var date = new Date();
-    //        date.setTime(date.getTime() + (minutes * 60 * 1000));
-    //        var expires = "; expires=" + date.toGMTString();
-    //    } else {
-    //        var expires = "";
-    //    }
-    //    document.cookie = name + "=" + value + expires + "; path=/";
-    //}
-    //function getcookie(cname) {
-    //    let name = cname + "=";
-    //    let ca = document.cookie.split(';');
-    //    for (let i = 0; i < ca.length; i++) {
-    //        let c = ca[i];
-    //        while (c.charat(0) == ' ') {
-    //            c = c.substring(1);
-    //        }
-    //        if (c.indexof(name) == 0) {
-    //            return c.substring(name.length, c.length);
-    //        }
-    //    }
-    //    return "";
-    //}
+    function createCookie(name, value, minutes) {
+        if (minutes) {
+            var date = new Date();
+            date.setTime(date.getTime() + (minutes * 60 * 1000));
+            var expires = "; expires=" + date.toGMTString();
+        } else {
+            var expires = "";
+        }
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
 
     async function userLogin(user) {
         let enteredUser = { "username": user.username, "userPassword": user.password }
@@ -71,28 +73,33 @@
                 "Access-Control-Allow-Origin": "*",
             }
         });
-        //if (response.status === 200) {
-        //    let token = await response.json();
-        //    document.getElementById("login-message").hidden = true;
-        //    createCookie("token",token,5)
-        //}
-        //else if (response.status === 404) {
-        //    document.getElementById("login-message").hidden = false;
-        //    document.getElementById("login-message").innerHTML = "User not found";
-        //}
-        //else {
-        //    document.getElementById("login-message").hidden = false;
-        //    document.getElementById("login-message").innerHTML = "Password incorrect";
-        //}
+
+        if (response.status === 200) {
+            let tokens = await response.json();
+            document.getElementById("login-message").hidden = true;
+            createCookie("access-token", tokens[0], 5);
+            createCookie("refresh-token", tokens[1], 20);
+        }
+        else if (response.status === 404) {
+            document.getElementById("login-message").hidden = false;
+            document.getElementById("login-message").innerHTML = "User not found";
+        }
+        else {
+            document.getElementById("login-message").hidden = false;
+            document.getElementById("login-message").innerHTML = "Password incorrect";
+        }
     }
 
     async function fetchRecipesJSON() {
-        let accessToken = getCookie('token')
+        let x = document.cookie;
+
+        let accessToken = getCookie('access-token');
+
         const response = await fetch("@Model.ApiUrl/recipes", {
             credentials: "same-origin",
             headers: {
                 'Content-Type': 'application/json;',
-                'Authorization': 'Bearer ' + accessToken,
+                'Authorization': 'bearer ' + accessToken,
                 "Access-Control-Allow-Origin": "*"
 
             }
@@ -103,7 +110,13 @@
     }
 
     async function fetchCategoriesJSON() {
-        const response = await fetch("@Model.ApiUrl/categories");
+        let accessToken = getCookie('access-token');
+        const response = await fetch("@Model.ApiUrl/categories", {
+            headers: {
+                'Content-Type': 'application/json;',
+                'Authorization': 'Bearer ' + accessToken,
+            }
+        });
         const categories = await response.json();
         categories.sort();
         categoriesList = categories;
@@ -111,10 +124,12 @@
     }
 
     async function fetchRecipe(recipeId) {
+        let accessToken = getCookie('access-token');
         const response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json;',
+                'Authorization': 'Bearer ' + accessToken,
             }
         });
         const recipe = await response.json();
@@ -126,6 +141,8 @@
         extension = fileName.split('.').pop();
         srcData = imageBase64Stringsep;
         let imagePath = `${newRecipe.id}.${extension}`;
+
+        let accessToken = getCookie('access-token');
 
         // Check if inputs is full or empty
         if (newRecipe.title === "" || newRecipe.ingredients.length === 0 || newRecipe.instructions.length === 0 || `${srcData}` === "") {
@@ -186,6 +203,7 @@
             body: JSON.stringify(newRecipe),
             headers: {
                 'Content-Type': 'application/json;',
+                'Authorization': 'Bearer ' + accessToken,
             }
         });
 
@@ -235,11 +253,14 @@
                 "categories": toBeEditRecipe.categories
             }
 
+            let accessToken = getCookie('access-token');
+
             let response = await fetch(`@Model.ApiUrl/recipe/${toBeEditRecipe.id}`, {
                 method: "PUT",
                 body: JSON.stringify(newRecipe),
                 headers: {
                     'Content-Type': 'application/json;',
+                    'Authorization': 'Bearer ' + accessToken,
                 }
             });
 
@@ -292,11 +313,14 @@
     }
 
     async function deleteRecipe(toBeDeletedRecipe) {
+        let accessToken = getCookie('access-token');
+
         if (toBeDeletedRecipe.id != "") {
             let response = await fetch(`@Model.ApiUrl/recipe/${toBeDeletedRecipe.id}`, {
                 method: "DELETE",
                 headers: {
                     'Content-Type': 'application/json;',
+                    'Authorization': 'Bearer ' + accessToken,
                 }
             });
 
@@ -314,6 +338,8 @@
     }
 
     async function addCategory(newCategory) {
+        let accessToken = getCookie('access-token');
+
         $('#addCategoryModal').modal('hide');
         if (newCategory !== "") {
             // Make add category request
@@ -322,6 +348,7 @@
                 body: JSON.stringify(newCategory),
                 headers: {
                     'Content-Type': 'application/json;',
+                    'Authorization': 'Bearer ' + accessToken,
                 }
             });
 
@@ -353,6 +380,9 @@
     }
 
     async function editCategory(toBeEditedCategory, newCategoryName) {
+
+        let accessToken = getCookie('access-token');
+
         $('#editCategoryModal').modal('hide');
         if (toBeEditedCategory !== "", newCategoryName !== "") {
             let response = await fetch(`@Model.ApiUrl/category/${toBeEditedCategory}`, {
@@ -360,6 +390,7 @@
                 body: JSON.stringify(newCategoryName),
                 headers: {
                     'Content-Type': 'application/json;',
+                    'Authorization': 'Bearer ' + accessToken,
                 }
             });
             if (response.status === 200) {
@@ -387,12 +418,15 @@
     }
 
     async function deleteCategory(toBeDeletedCategory) {
+        let accessToken = getCookie('access-token');
+
         $('#deleteCategoryModal').modal('hide');
         if (toBeDeletedCategory !== "") {
             let response = await fetch(`@Model.ApiUrl/category/${toBeDeletedCategory}`, {
                 method: "DELETE",
                 headers: {
                     'Content-Type': 'application/json;',
+                    'Authorization': 'Bearer ' + accessToken,
                 }
             });
             if (response.status === 200) {

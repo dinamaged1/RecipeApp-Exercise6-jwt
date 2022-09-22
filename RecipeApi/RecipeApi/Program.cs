@@ -157,7 +157,12 @@ app.MapPost("/login", ([FromBody] UserDto enteredUser, Microsoft.AspNetCore.Http
     var refreshToken = GenerateRefreshToken();
     SetRefreshToken(refreshToken, token, userData, response);
 
-    return Results.Ok(token);
+    List<string> tokens = new List<string>()
+    {
+        token,
+        refreshToken.Token.ToString()
+    };
+    return Results.Ok(tokens);
 });
 
 // Refresh token
@@ -184,8 +189,12 @@ app.MapPost("/refreshToken", ([FromBody] string username, Microsoft.AspNetCore.H
     string token = CreateToken(username);
     var newRefreshToken = GenerateRefreshToken();
     SetRefreshToken(newRefreshToken, token, specifiedUser, response);
-
-    return Results.Ok(token);
+    List<string> tokens = new List<string>()
+    {
+        token,
+        newRefreshToken.ToString()
+    };
+    return Results.Ok(tokens);
 
 });
 
@@ -348,7 +357,7 @@ string CreateToken(string userName)
                 new Claim(JwtRegisteredClaimNames.Jti,
                 Guid.NewGuid().ToString())
              }),
-        Expires = DateTime.UtcNow.AddMinutes(2),
+        Expires = DateTime.UtcNow.AddMinutes(30),
         SigningCredentials = new SigningCredentials
         (new SymmetricSecurityKey(key),
         SecurityAlgorithms.HmacSha512Signature)
