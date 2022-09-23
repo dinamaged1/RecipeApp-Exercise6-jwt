@@ -37,10 +37,36 @@
             }
         });
         if (response.status == 200) {
-            return true;
+            Swal.fire({
+                title: `User ${newUser.username} Added Successfully`,
+                showDenyButton: false,
+                showCancelButton: false,
+                confirmButtonText: 'OK',
+                denyButtonText: `Cancel`,
+                allowOutsideClick: false,
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    location.reload();
+                    return true;
+
+                }
+            })
         }
         else {
-            return false;
+            Swal.fire({
+                title: 'Username Already Exist! \n Enter Another Username',
+                showDenyButton: false,
+                showCancelButton: false,
+                confirmButtonText: 'OK',
+                denyButtonText: `Cancel`,
+                allowOutsideClick: false,
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    return false;
+                }
+            })
         }
     }
 
@@ -142,6 +168,28 @@
                 }
             })
         }
+    }
+
+    function logOut() {
+        Swal.fire({
+            title: 'Are you sure you want to log out?',
+            showDenyButton: true,
+            showCancelButton: false,
+            confirmButtonText: 'Yes',
+            denyButtonText: `No`,
+            allowOutsideClick: false,
+        }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                if (getCookie("access") !== '')
+                    document.cookie = "access=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.localStorage.setItem('authenticated', 'false');
+                window.localStorage.removeItem('username');
+                location.reload();
+            }
+        })
+
+
     }
 
     async function fetchRecipesJSON() {
@@ -706,7 +754,7 @@
                             </div>
                             <div class="signup-link">Not a member? <a href="">Signup now</a></div>
                         </form>
-                        <form class="signup" x-data="{newUser:{ username: '',password: '',confirmPassword:''} }" x-on:submit.prevent="userRegister(newUser); document.querySelector('label.login').click(); newUser={ username: '',password: '',confirmPassword:''}"
+                        <form class="signup" x-data="{newUser:{ username: '',password: '',confirmPassword:''}, isRegistered:false }" x-on:submit.prevent="isRegistered=userRegister(newUser); if(isRegistered){ newUser={ username: '',password: '',confirmPassword:''}}"
                               oninput='up2.setCustomValidity(up2.value != up.value ? "Passwords do not match." : "")'>
                             <div class="field">
                                 <input type="text" placeholder="Username" x-model="newUser.username" required>
@@ -729,6 +777,25 @@
     </template>
     <template x-if="isLogged">
         <div x-data="currentRecipe">
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow ">
+                <div class="container">
+                    <a class="navbar-brand" asp-area="" asp-page="/Index">Tasty Tips</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" style="cursor:pointer" x-on:click="logOut()">Log Out</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
             <div x-data="{ recipeDetailsShow:false, recipeShow:false, recipeTemp:{ id: '', title: '', imagepath: '', ingredients: [''], instructions: [''], categories: []} ,recipes: [],categories:[],toBeEditRecipe:{ id: '', title: '', imagepath: '', ingredients: [''], instructions: [''], categories: []} ,numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)"
                  @@resize.window="if (window.innerWidth < 640) {recipesPerPage:2}">
                 <section id="section1">
@@ -878,7 +945,7 @@
                                                     <li x-text="currentRecipeInstructions"></li>
                                                     <hr style=" height: 0.5px; margin: 1rem 6rem; " />
                                         </div>
-    </template>
+</template>
     </ol>
 </div>
                             </div>

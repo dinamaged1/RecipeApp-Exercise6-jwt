@@ -338,7 +338,7 @@ body {
 
 #loginSection {
     display: grid;
-    height: 95vh;
+    height: 99vh;
     width: 100%;
     place-items: center;
     background: -webkit-linear-gradient(left, #8cd2cc,#9dfcff4d,#c1ffffeb, #2199a2);
