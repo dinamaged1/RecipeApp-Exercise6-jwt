@@ -18,7 +18,7 @@
 
     function checkAuthentication() {
         let isLogged = window.localStorage.getItem('authenticated');
-        if (isLogged === 'false' || getCookie('refresh')==='') {
+        if (isLogged === 'false') {
             return false;
         }
         else {
@@ -28,7 +28,7 @@
 
     async function userRegister(newUser) {
         let user = { "username": newUser.username, "userPassword": newUser.password }
-        const response = await fetch("@Model.ApiUrl/register", {
+        let response = await fetch("@Model.ApiUrl/register", {
             method: "POST",
             body: JSON.stringify(user),
             headers: {
@@ -52,7 +52,7 @@
         } else {
             var expires = "";
         }
-        document.cookie = name + "=" + value + expires + "; path=/";
+        document.cookie = name + "=" + value;
     }
 
     function getCookie(cname) {
@@ -73,7 +73,7 @@
 
     async function userLogin(user) {
         let enteredUser = { "username": user.username, "userPassword": user.password }
-        const response = await fetch("@Model.ApiUrl/login", {
+        let response = await fetch("@Model.ApiUrl/login", {
             method: "POST",
             body: JSON.stringify(enteredUser),
             credentials: 'include',
@@ -88,7 +88,6 @@
             let tokens = await response.json();
             document.getElementById("login-message").hidden = true;
             createCookie("access", tokens[0], 1);
-            createCookie("refresh", tokens[1], 20);
             window.localStorage.setItem('username', user.username);
             window.localStorage.setItem('authenticated', 'true');
             location.reload();
@@ -106,7 +105,7 @@
 
     async function generateRefreshToken() {
         let username = window.localStorage.getItem('username');
-        const response = await fetch("@Model.ApiUrl/refreshToken", {
+        let response = await fetch("@Model.ApiUrl/refreshToken", {
             method: "POST",
             body: JSON.stringify(username),
             credentials: 'include',
@@ -125,9 +124,7 @@
 
             window.localStorage.setItem('authenticated', 'false');
             if (getCookie("access") !== '') 
-                document.cookie = access + ";max-age=0";
-            if (getCookie("refresh")!=='')
-                document.cookie = refresh + ";max-age=0";
+                document.cookie = "access=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             window.localStorage.removeItem('username');
 
             Swal.fire({
@@ -152,7 +149,7 @@
 
         let accessToken = getCookie('access');
 
-        const response = await fetch("@Model.ApiUrl/recipes", {
+        let response = await fetch("@Model.ApiUrl/recipes", {
             credentials: "same-origin",
             headers: {
                 'Content-Type': 'application/json;',
@@ -183,7 +180,7 @@
 
     async function fetchCategoriesJSON() {
         let accessToken = getCookie('access');
-        const response = await fetch("@Model.ApiUrl/categories", {
+        let response = await fetch("@Model.ApiUrl/categories", {
             headers: {
                 'Content-Type': 'application/json;',
                 'Authorization': 'Bearer ' + accessToken,
@@ -209,7 +206,7 @@
 
     async function fetchRecipe(recipeId) {
         let accessToken = getCookie('access');
-        const response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
+        let response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json;',
