@@ -87,7 +87,7 @@
         if (response.status === 200) {
             let tokens = await response.json();
             document.getElementById("login-message").hidden = true;
-            createCookie("access", tokens[0], 5);
+            createCookie("access", tokens[0], 1);
             createCookie("refresh", tokens[1], 20);
             window.localStorage.setItem('username', user.username);
             window.localStorage.setItem('authenticated', 'true');
@@ -117,15 +117,17 @@
         });
         if (response.status === 200) {
             let tokens = await response.json();
-            createCookie("access", tokens[0], 5);
+            createCookie("access", tokens[0], 1);
             createCookie("refresh", tokens[1], 20);
             return true;
         }
         else {
 
             window.localStorage.setItem('authenticated', 'false');
-            document.cookie = access + ";max-age=0";
-            document.cookie = refresh + ";max-age=0";
+            if (getCookie("access") !== '') 
+                document.cookie = access + ";max-age=0";
+            if (getCookie("refresh")!=='')
+                document.cookie = refresh + ";max-age=0";
             window.localStorage.removeItem('username');
 
             Swal.fire({
@@ -162,6 +164,7 @@
         if (response.status === 401) {
             isRefreshed = await generateRefreshToken();
             if (isRefreshed) {
+                accessToken = getCookie('access');
                 response =await fetch("@Model.ApiUrl/recipes", {
                     credentials: "same-origin",
                     headers: {
@@ -189,6 +192,7 @@
         if (response.status === 401) {
             isRefreshed = await generateRefreshToken();
             if (isRefreshed) {
+                accessToken = getCookie('access');
                 response = await fetch("@Model.ApiUrl/categories", {
                     headers: {
                         'Content-Type': 'application/json;',
@@ -215,6 +219,7 @@
         if (response.status === 401) {
             isRefreshed = await generateRefreshToken();
             if (isRefreshed) {
+                accessToken = getCookie('access');
                 response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
                     method: "GET",
                     headers: {
@@ -316,6 +321,7 @@
         else if (response1.status === 401) {
             isRefreshed = await generateRefreshToken();
             if (isRefreshed) {
+                accessToken = getCookie('access');
                 response1 = await fetch("@Model.ApiUrl/recipe", {
                     method: "POST",
                     body: JSON.stringify(newRecipe),
@@ -653,9 +659,28 @@
         }
     }
 </script>
-<div x-data="isLogged:false" x-init="isLogged=checkAuthentication()">
+<div x-data="{isLogged:false}" x-init="isLogged=checkAuthentication()">
     <template x-if="!isLogged">
         <section id="loginSection">
+            <script>
+                const loginText = document.querySelector(".title-text .login");
+                const loginForm = document.querySelector("form.login");
+                const loginBtn = document.querySelector("label.login");
+                const signupBtn = document.querySelector("label.signup");
+                const signupLink = document.querySelector("form .signup-link a");
+                signupBtn.onclick = (() => {
+                    loginForm.style.marginLeft = "-50%";
+                    loginText.style.marginLeft = "-50%";
+                });
+                loginBtn.onclick = (() => {
+                    loginForm.style.marginLeft = "0%";
+                    loginText.style.marginLeft = "0%";
+                });
+                signupLink.onclick = (() => {
+                    signupBtn.click();
+                    return false;
+                });
+            </script>
             <div class="wrapper">
                 <div class="title-text">
                     <div class="title login">Login Form</div>
@@ -1235,22 +1260,3 @@
     </div>
     </template>
 </div>
-<script>
-    const loginText = document.querySelector(".title-text .login");
-    const loginForm = document.querySelector("form.login");
-    const loginBtn = document.querySelector("label.login");
-    const signupBtn = document.querySelector("label.signup");
-    const signupLink = document.querySelector("form .signup-link a");
-    signupBtn.onclick = (() => {
-        loginForm.style.marginLeft = "-50%";
-        loginText.style.marginLeft = "-50%";
-    });
-    loginBtn.onclick = (() => {
-        loginForm.style.marginLeft = "0%";
-        loginText.style.marginLeft = "0%";
-    });
-    signupLink.onclick = (() => {
-        signupBtn.click();
-        return false;
-    });
-</script>
