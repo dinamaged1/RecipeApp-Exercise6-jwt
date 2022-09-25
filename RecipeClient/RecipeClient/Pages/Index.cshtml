@@ -185,6 +185,7 @@
                     document.cookie = "access=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 window.localStorage.setItem('authenticated', 'false');
                 window.localStorage.removeItem('username');
+                window.location.href = '#loginSection';
                 location.reload();
             }
         })
