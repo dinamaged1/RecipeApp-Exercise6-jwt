@@ -4,7 +4,7 @@
 @inject IAntiforgery antiforgery
 @{
     var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />

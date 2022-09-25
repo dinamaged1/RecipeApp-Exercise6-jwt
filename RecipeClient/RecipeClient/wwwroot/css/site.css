@@ -14,7 +14,7 @@ html {
 }
 
 body {
-    margin-bottom: 60px;
+    margin-bottom: 20px;
     overflow-x: hidden;
 }
 
@@ -61,7 +61,7 @@ body {
 
 .c-box-recipe {
     background-color: pink;
-    border-radius: 5px;
+    border-radius: 10px;
 }
 
 .c-box-category {
