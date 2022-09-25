@@ -134,7 +134,7 @@ app.MapPost("/register", async ([FromBody] UserDto newUser) =>
 });
 
 // User login
-app.MapPost("/login", ([FromBody] UserDto enteredUser, Microsoft.AspNetCore.Http.HttpResponse response) =>
+app.MapPost("/login",async ([FromBody] UserDto enteredUser, Microsoft.AspNetCore.Http.HttpResponse response) =>
 {
 
     if (!usersList.Exists(x => x.Username == enteredUser.Username))
@@ -157,6 +157,9 @@ app.MapPost("/login", ([FromBody] UserDto enteredUser, Microsoft.AspNetCore.Http
     var refreshToken = GenerateRefreshToken();
     SetRefreshToken(refreshToken, token, userData, response);
 
+    userData.RefreshToken = refreshToken.Token.ToString();
+    await SaveUserToJson();
+
     List<string> tokens = new List<string>()
     {
         token,
@@ -166,7 +169,7 @@ app.MapPost("/login", ([FromBody] UserDto enteredUser, Microsoft.AspNetCore.Http
 });
 
 // Refresh token
-app.MapPost("/refreshToken", ([FromBody] string username, Microsoft.AspNetCore.Http.HttpRequest request, Microsoft.AspNetCore.Http.HttpResponse response) =>
+app.MapPost("/refreshToken", async ([FromBody] string username, Microsoft.AspNetCore.Http.HttpRequest request, Microsoft.AspNetCore.Http.HttpResponse response) =>
 {
     User? specifiedUser = new User();
     var refreshToken = request.Cookies["refreshToken"];
@@ -189,6 +192,10 @@ app.MapPost("/refreshToken", ([FromBody] string username, Microsoft.AspNetCore.H
     string token = CreateToken(username);
     var newRefreshToken = GenerateRefreshToken();
     SetRefreshToken(newRefreshToken, token, specifiedUser, response);
+
+    specifiedUser.RefreshToken = newRefreshToken.Token.ToString();
+    await SaveUserToJson();
+
     List<string> tokens = new List<string>()
     {
         token,
