@@ -149,7 +149,7 @@
         else {
 
             window.localStorage.setItem('authenticated', 'false');
-            if (getCookie("access") !== '') 
+            if (getCookie("access") !== '')
                 document.cookie = "access=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             window.localStorage.removeItem('username');
 
@@ -188,8 +188,6 @@
                 location.reload();
             }
         })
-
-
     }
 
     async function fetchRecipesJSON() {
@@ -208,6 +206,7 @@
         });
         if (response.status === 401) {
             isRefreshed = await generateRefreshToken();
+            accessToken = getCookie('access');
             if (isRefreshed) {
                 accessToken = getCookie('access');
                 response =await fetch("@Model.ApiUrl/recipes", {
@@ -236,6 +235,7 @@
         });
         if (response.status === 401) {
             isRefreshed = await generateRefreshToken();
+            accessToken = getCookie('access');
             if (isRefreshed) {
                 accessToken = getCookie('access');
                 response = await fetch("@Model.ApiUrl/categories", {
@@ -263,6 +263,7 @@
         });
         if (response.status === 401) {
             isRefreshed = await generateRefreshToken();
+            accessToken = getCookie('access');
             if (isRefreshed) {
                 accessToken = getCookie('access');
                 response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
@@ -365,6 +366,7 @@
         }
         else if (response1.status === 401) {
             isRefreshed = await generateRefreshToken();
+            accessToken = getCookie('access');
             if (isRefreshed) {
                 accessToken = getCookie('access');
                 response1 = await fetch("@Model.ApiUrl/recipe", {
@@ -481,6 +483,7 @@
             });
             if (response.status === 401) {
                 isRefreshed = await generateRefreshToken();
+                accessToken = getCookie('access');
                 if (isRefreshed) {
                     response = await fetch(`@Model.ApiUrl/recipe/${toBeDeletedRecipe.id}`, {
                         method: "DELETE",
@@ -537,7 +540,9 @@
             }
             else if (response.status === 401) {
                 isRefreshed = await generateRefreshToken();
+                accessToken = getCookie('access');
                 if (isRefreshed) {
+                    accessToken = getCookie('access');
                     response = await fetch("@Model.ApiUrl/category", {
                         method: "POST",
                         body: JSON.stringify(newCategory),
@@ -546,6 +551,22 @@
                             'Authorization': 'Bearer ' + accessToken,
                         }
                     });
+                    // If user entered repeated category
+                    if (response.status === 400) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: `${newCategory} category already exist`,
+                        })
+                    }
+                    // If successful request
+                    else if (response.status === 200) {
+                        Swal.fire(
+                            'Good job!',
+                            `${newCategory} category added successfully`,
+                            'success'
+                        )
+                    }
                 }
             }
         }
@@ -589,6 +610,7 @@
             }
             else if (response.status === 401) {
                 isRefreshed = await generateRefreshToken();
+                accessToken = getCookie('access');
                 if (isRefreshed) {
                     response = await fetch(`@Model.ApiUrl/category/${toBeEditedCategory}`, {
                         method: "PUT",
@@ -631,6 +653,7 @@
             }
             else if (response.status === 401) {
                 isRefreshed = await generateRefreshToken();
+                accessToken = getCookie('access');
                 if (isRefreshed) {
                    let response = await fetch(`@Model.ApiUrl/category/${toBeDeletedCategory}`, {
                         method: "DELETE",
@@ -945,7 +968,7 @@
                                                     <li x-text="currentRecipeInstructions"></li>
                                                     <hr style=" height: 0.5px; margin: 1rem 6rem; " />
                                         </div>
-</template>
+    </template>
     </ol>
 </div>
                             </div>
